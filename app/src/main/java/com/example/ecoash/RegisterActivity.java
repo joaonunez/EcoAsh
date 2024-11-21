@@ -9,97 +9,70 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class RegisterActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
-    private Button backButton; // Botón de volver
-    private Button registerButton;
-    private EditText nameField, emailField, passwordField, confirmPasswordField;
+    private EditText emailEditText, passwordEditText, nameEditText;
+    private Button registerButton, backButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        // Inicializa FirebaseAuth y FirebaseFirestore
         mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
 
-        // Referencias a los elementos del diseño
-        backButton = findViewById(R.id.backButton);
+        emailEditText = findViewById(R.id.emailEditText);
+        passwordEditText = findViewById(R.id.passwordEditText);
+        nameEditText = findViewById(R.id.nameEditText); // Agrega el campo para el nombre
         registerButton = findViewById(R.id.registerButton);
-        nameField = findViewById(R.id.nameField);
-        emailField = findViewById(R.id.emailField);
-        passwordField = findViewById(R.id.passwordField);
-        confirmPasswordField = findViewById(R.id.confirmPasswordField);
+        backButton = findViewById(R.id.backButton);
 
-        // Configura el botón de "Volver"
+        registerButton.setOnClickListener(v -> {
+            String email = emailEditText.getText().toString().trim();
+            String password = passwordEditText.getText().toString().trim();
+            String name = nameEditText.getText().toString().trim();
+
+            if (email.isEmpty() || password.isEmpty() || name.isEmpty()) {
+                Toast.makeText(RegisterActivity.this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show();
+            } else {
+                registerUser(email, password, name);
+            }
+        });
+
         backButton.setOnClickListener(v -> {
-            // Navegar al MainActivity
-            Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
         });
-
-        // Configura el botón de registro
-        registerButton.setOnClickListener(v -> {
-            String name = nameField.getText().toString().trim();
-            String email = emailField.getText().toString().trim();
-            String password = passwordField.getText().toString().trim();
-            String confirmPassword = confirmPasswordField.getText().toString().trim();
-
-            if (name.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-                Toast.makeText(RegisterActivity.this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
-            } else if (!password.equals(confirmPassword)) {
-                Toast.makeText(RegisterActivity.this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
-            } else {
-                registerUser(name, email, password);
-            }
-        });
     }
 
-    private void registerUser(String name, String email, String password) {
+    private void registerUser(String email, String password, String name) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        // Guardar datos en Firestore
-                        String uid = mAuth.getCurrentUser().getUid();
-                        saveUserToFirestore(uid, name, email);
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user != null) {
+                            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                    .setDisplayName(name)
+                                    .build();
+
+                            user.updateProfile(profileUpdates)
+                                    .addOnCompleteListener(profileTask -> {
+                                        if (profileTask.isSuccessful()) {
+                                            Toast.makeText(RegisterActivity.this, "Registro exitoso", Toast.LENGTH_SHORT).show();
+                                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                            startActivity(intent);
+                                            finish();
+                                        }
+                                    });
+                        }
                     } else {
-                        Toast.makeText(RegisterActivity.this, "Error al registrarse: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RegisterActivity.this, "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
-    }
-
-    private void saveUserToFirestore(String uid, String name, String email) {
-        Map<String, Object> userData = new HashMap<>();
-        userData.put("uid", uid);
-        userData.put("name", name);
-        userData.put("email", email);
-
-        db.collection("users").document(uid).set(userData)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(RegisterActivity.this, "Registro exitoso", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                    startActivity(intent);
-                    finish();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(RegisterActivity.this, "Error al guardar datos: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    @Override
-    public void onBackPressed() {
-        // Regresar al MainActivity cuando se presione el botón "Atrás"
-        Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-        startActivity(intent);
-        finish();
     }
 }

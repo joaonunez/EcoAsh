@@ -33,19 +33,17 @@ public class PersonalDataFragment extends Fragment {
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-            txtName.setText("Nombre: " + currentUser.getDisplayName());
+            String displayName = currentUser.getDisplayName();
+            txtName.setText("Nombre: " + (displayName != null ? displayName : "No configurado"));
             txtEmail.setText("Correo: " + currentUser.getEmail());
         } else {
             txtName.setText("Nombre: No disponible");
             txtEmail.setText("Correo: No disponible");
         }
 
-        // Funcionalidad del botón de cerrar sesión
         btnLogout.setOnClickListener(v -> {
-            FirebaseAuth.getInstance().signOut(); // Cierra sesión en Firebase
+            FirebaseAuth.getInstance().signOut();
             Toast.makeText(getContext(), "Sesión cerrada", Toast.LENGTH_SHORT).show();
-
-            // Redirige al usuario al LoginActivity
             Intent intent = new Intent(getContext(), LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
