@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "351456093930",
+    "project_id": "ecoash-96aed",
+    "storage_bucket": "ecoash-96aed.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:351456093930:android:10bd327eb854eea916d993",
+        "android_client_info": {
+          "package_name": "com.example.ecoash"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtQJo1wtbbGDfN8Ki0jivaldKmmR3gFPA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
