@@ -1,22 +1,31 @@
 package com.example.ecoash;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RegisterActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
-    private EditText emailEditText, passwordEditText, nameEditText;
-    private Button registerButton, backButton;
+    private EditText txtName, txtEmail, txtPassword, txtAddress, txtBirthday;
+    private Spinner spinnerGender;
+    private Button btnRegister, btnBack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,53 +34,94 @@ public class RegisterActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        emailEditText = findViewById(R.id.emailEditText);
-        passwordEditText = findViewById(R.id.passwordEditText);
-        nameEditText = findViewById(R.id.nameEditText); // Agrega el campo para el nombre
-        registerButton = findViewById(R.id.registerButton);
-        backButton = findViewById(R.id.backButton);
+        // Referencias a los campos
+        txtName = findViewById(R.id.txtName);
+        txtEmail = findViewById(R.id.txtEmail);
+        txtPassword = findViewById(R.id.txtPassword);
+        txtAddress = findViewById(R.id.txtAddress);
+        txtBirthday = findViewById(R.id.txtBirthday);
+        spinnerGender = findViewById(R.id.spinnerGender);
+        btnRegister = findViewById(R.id.btnRegister);
+        btnBack = findViewById(R.id.btnBack);
 
-        registerButton.setOnClickListener(v -> {
-            String email = emailEditText.getText().toString().trim();
-            String password = passwordEditText.getText().toString().trim();
-            String name = nameEditText.getText().toString().trim();
+        // Configurar opciones de género
+        ArrayAdapter<CharSequence> genderAdapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.gender_options,
+                android.R.layout.simple_spinner_item
+        );
+        genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerGender.setAdapter(genderAdapter);
 
-            if (email.isEmpty() || password.isEmpty() || name.isEmpty()) {
-                Toast.makeText(RegisterActivity.this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show();
-            } else {
-                registerUser(email, password, name);
+        // Configurar selector de fecha
+        txtBirthday.setOnClickListener(v -> showDatePicker());
+
+        // Botón de registro
+        btnRegister.setOnClickListener(v -> {
+            String name = txtName.getText().toString().trim();
+            String email = txtEmail.getText().toString().trim();
+            String password = txtPassword.getText().toString().trim();
+            String address = txtAddress.getText().toString().trim();
+            String gender = spinnerGender.getSelectedItem().toString();
+            String birthday = txtBirthday.getText().toString().trim();
+
+            if (name.isEmpty() || email.isEmpty() || password.isEmpty() || address.isEmpty() || birthday.isEmpty()) {
+                Toast.makeText(RegisterActivity.this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            registerUser(name, email, password, address, gender, birthday);
         });
 
-        backButton.setOnClickListener(v -> {
+        // Botón de volver
+        btnBack.setOnClickListener(v -> {
             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
         });
     }
 
-    private void registerUser(String email, String password, String name) {
+    private void showDatePicker() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, (DatePicker view, int selectedYear, int selectedMonth, int selectedDay) -> {
+            txtBirthday.setText(selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear);
+        }, year, month, day);
+
+        datePickerDialog.show();
+    }
+
+    private void registerUser(String name, String email, String password, String address, String gender, String birthday) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        if (user != null) {
-                            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                                    .setDisplayName(name)
-                                    .build();
+                        FirebaseUser currentUser = mAuth.getCurrentUser();
+                        if (currentUser != null) {
+                            FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-                            user.updateProfile(profileUpdates)
-                                    .addOnCompleteListener(profileTask -> {
-                                        if (profileTask.isSuccessful()) {
-                                            Toast.makeText(RegisterActivity.this, "Registro exitoso", Toast.LENGTH_SHORT).show();
-                                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                                            startActivity(intent);
-                                            finish();
-                                        }
+                            Map<String, Object> userData = new HashMap<>();
+                            userData.put("name", name);
+                            userData.put("email", email);
+                            userData.put("address", address);
+                            userData.put("gender", gender);
+                            userData.put("birthday", birthday);
+
+                            db.collection("users").document(currentUser.getUid()).set(userData)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(RegisterActivity.this, "Usuario registrado exitosamente", Toast.LENGTH_SHORT).show();
+                                        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(RegisterActivity.this, "Error al guardar los datos del usuario", Toast.LENGTH_SHORT).show();
                                     });
                         }
                     } else {
-                        Toast.makeText(RegisterActivity.this, "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RegisterActivity.this, "Error al registrar usuario: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }

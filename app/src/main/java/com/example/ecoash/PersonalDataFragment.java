@@ -15,6 +15,8 @@ import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class PersonalDataFragment extends Fragment {
 
@@ -29,16 +31,35 @@ public class PersonalDataFragment extends Fragment {
 
         TextView txtName = view.findViewById(R.id.txtName);
         TextView txtEmail = view.findViewById(R.id.txtEmail);
+        TextView txtAddress = view.findViewById(R.id.txtAddress);
+        TextView txtBirthday = view.findViewById(R.id.txtBirthday);
+        TextView txtGender = view.findViewById(R.id.txtGender);
         Button btnLogout = view.findViewById(R.id.btnLogout);
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-            String displayName = currentUser.getDisplayName();
-            txtName.setText("Nombre: " + (displayName != null ? displayName : "No configurado"));
-            txtEmail.setText("Correo: " + currentUser.getEmail());
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            String userId = currentUser.getUid();
+
+            db.collection("users").document(userId).get().addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.exists()) {
+                    txtName.setText("Nombre: " + documentSnapshot.getString("name"));
+                    txtEmail.setText("Correo: " + documentSnapshot.getString("email"));
+                    txtAddress.setText("Dirección: " + documentSnapshot.getString("address"));
+                    txtBirthday.setText("Cumpleaños: " + documentSnapshot.getString("birthday"));
+                    txtGender.setText("Género: " + documentSnapshot.getString("gender"));
+                } else {
+                    Toast.makeText(getContext(), "Datos no encontrados", Toast.LENGTH_SHORT).show();
+                }
+            }).addOnFailureListener(e -> {
+                Toast.makeText(getContext(), "Error al obtener datos", Toast.LENGTH_SHORT).show();
+            });
         } else {
             txtName.setText("Nombre: No disponible");
             txtEmail.setText("Correo: No disponible");
+            txtAddress.setText("Dirección: No disponible");
+            txtBirthday.setText("Cumpleaños: No disponible");
+            txtGender.setText("Género: No disponible");
         }
 
         btnLogout.setOnClickListener(v -> {

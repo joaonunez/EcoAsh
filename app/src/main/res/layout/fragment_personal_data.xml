@@ -33,4 +33,25 @@
         android:padding="12dp"
         android:backgroundTint="@color/primary"
         android:textColor="@android:color/white" />
+    <TextView
+        android:id="@+id/txtAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Dirección: "
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/txtBirthday"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cumpleaños: "
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/txtGender"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Género: "
+        android:layout_marginTop="8dp" />
+
 </LinearLayout>
