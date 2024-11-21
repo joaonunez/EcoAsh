@@ -9,5 +9,5 @@
         android:id="@+id/btnRegisterAdminDevice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Registrar Dispositivo (Admin)" />
+        android:text="Crear Dispositivo" />
 </LinearLayout>
