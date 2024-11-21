@@ -40,7 +40,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4") // Constraint Layout
     implementation("androidx.viewpager2:viewpager2:1.0.0") // ViewPager2
     implementation("com.google.android.material:material:1.x.x")
-
+    implementation ("androidx.cardview:cardview:1.0.0")
 
     // Firebase BoM for managing Firebase dependencies versions
     implementation(platform("com.google.firebase:firebase-bom:33.6.0"))

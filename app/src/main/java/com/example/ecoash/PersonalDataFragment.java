@@ -14,8 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class PersonalDataFragment extends Fragment {
@@ -29,6 +27,7 @@ public class PersonalDataFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_personal_data, container, false);
 
+        // Referencias a los elementos
         TextView txtName = view.findViewById(R.id.txtName);
         TextView txtEmail = view.findViewById(R.id.txtEmail);
         TextView txtAddress = view.findViewById(R.id.txtAddress);
@@ -36,32 +35,23 @@ public class PersonalDataFragment extends Fragment {
         TextView txtGender = view.findViewById(R.id.txtGender);
         Button btnLogout = view.findViewById(R.id.btnLogout);
 
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser != null) {
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            String userId = currentUser.getUid();
+        // Cargar datos del usuario
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-            db.collection("users").document(userId).get().addOnSuccessListener(documentSnapshot -> {
-                if (documentSnapshot.exists()) {
-                    txtName.setText("Nombre: " + documentSnapshot.getString("name"));
-                    txtEmail.setText("Correo: " + documentSnapshot.getString("email"));
-                    txtAddress.setText("Dirección: " + documentSnapshot.getString("address"));
-                    txtBirthday.setText("Cumpleaños: " + documentSnapshot.getString("birthday"));
-                    txtGender.setText("Género: " + documentSnapshot.getString("gender"));
-                } else {
-                    Toast.makeText(getContext(), "Datos no encontrados", Toast.LENGTH_SHORT).show();
-                }
-            }).addOnFailureListener(e -> {
-                Toast.makeText(getContext(), "Error al obtener datos", Toast.LENGTH_SHORT).show();
-            });
-        } else {
-            txtName.setText("Nombre: No disponible");
-            txtEmail.setText("Correo: No disponible");
-            txtAddress.setText("Dirección: No disponible");
-            txtBirthday.setText("Cumpleaños: No disponible");
-            txtGender.setText("Género: No disponible");
-        }
+        db.collection("users").document(userId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        txtName.setText("Nombre: " + documentSnapshot.getString("name"));
+                        txtEmail.setText("Correo: " + documentSnapshot.getString("email"));
+                        txtAddress.setText("Dirección: " + documentSnapshot.getString("address"));
+                        txtBirthday.setText("Cumpleaños: " + documentSnapshot.getString("birthday"));
+                        txtGender.setText("Género: " + documentSnapshot.getString("gender"));
+                    }
+                })
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "Error al cargar los datos", Toast.LENGTH_SHORT).show());
 
+        // Funcionalidad del botón de cerrar sesión
         btnLogout.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
             Toast.makeText(getContext(), "Sesión cerrada", Toast.LENGTH_SHORT).show();
