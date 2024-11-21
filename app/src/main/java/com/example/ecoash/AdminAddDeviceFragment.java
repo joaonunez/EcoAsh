@@ -11,22 +11,21 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-public class DevicesFragment extends Fragment {
-
-    public DevicesFragment() {
-        // Constructor vacío requerido
-    }
+public class AdminAddDeviceFragment extends Fragment {
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_devices, container, false);
+        // Inflar el layout del fragmento
+        View view = inflater.inflate(R.layout.fragment_admin_add_device, container, false);
 
-        Button btnRegisterDevice = view.findViewById(R.id.btnRegisterDevice);
-        btnRegisterDevice.setOnClickListener(v -> {
-            Toast.makeText(getActivity(), "Registrar dispositivo clickeado", Toast.LENGTH_SHORT).show();
+        // Referenciar el botón
+        Button btnRegisterAdminDevice = view.findViewById(R.id.btnRegisterAdminDevice);
+        btnRegisterAdminDevice.setOnClickListener(v -> {
+            Toast.makeText(getActivity(), "Registrar dispositivo del administrador clickeado", Toast.LENGTH_SHORT).show();
         });
 
         return view;
     }
+
 }

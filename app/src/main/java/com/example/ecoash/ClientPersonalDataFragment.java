@@ -16,16 +16,16 @@ import androidx.fragment.app.Fragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class PersonalDataFragment extends Fragment {
+public class ClientPersonalDataFragment extends Fragment {
 
-    public PersonalDataFragment() {
+    public ClientPersonalDataFragment() {
         // Constructor vacío requerido
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_personal_data, container, false);
+        View view = inflater.inflate(R.layout.fragment_client_personal_data, container, false);
 
         // Referencias a los elementos
         TextView txtName = view.findViewById(R.id.txtName);

@@ -19,20 +19,26 @@
             </intent-filter>
         </activity>
 
-        <!-- Actividad WelcomeUserActivity -->
+        <!-- Actividades de usuario (Cliente) -->
         <activity
-            android:name=".WelcomeUserActivity"
+            android:name=".ClientHomeActivity"
             android:exported="false" />
-
-        <!-- Actividad LoginActivity -->
         <activity
             android:name=".LoginActivity"
-            android:exported="false" />
-
-        <!-- Actividad RegisterActivity -->
+            android:exported="true" />
         <activity
-            android:name=".RegisterActivity"
-            android:exported="false" />
+            android:name=".RegisterUserActivity"
+            android:exported="true" />
 
+        <!-- Actividades de administrador -->
+        <activity
+            android:name=".AdminDashboardActivity"
+            android:exported="true" />
+        <activity
+            android:name=".AdminRegisterUserActivity"
+            android:exported="true" />
+        <activity
+            android:name=".AdminHomeActivity"
+            android:exported="true" />
     </application>
 </manifest>

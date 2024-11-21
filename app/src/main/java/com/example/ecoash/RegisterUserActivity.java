@@ -20,7 +20,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterUserActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private EditText txtName, txtEmail, txtPassword, txtAddress, txtBirthday;
@@ -30,7 +30,7 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
+        setContentView(R.layout.activity_register_user);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -66,7 +66,7 @@ public class RegisterActivity extends AppCompatActivity {
             String birthday = txtBirthday.getText().toString().trim();
 
             if (name.isEmpty() || email.isEmpty() || password.isEmpty() || address.isEmpty() || birthday.isEmpty()) {
-                Toast.makeText(RegisterActivity.this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
+                Toast.makeText(RegisterUserActivity.this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -75,7 +75,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         // Botón de volver
         btnBack.setOnClickListener(v -> {
-            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+            Intent intent = new Intent(RegisterUserActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
         });
@@ -102,26 +102,28 @@ public class RegisterActivity extends AppCompatActivity {
                         if (currentUser != null) {
                             FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+                            // Crear datos del usuario con el rol por defecto "cliente"
                             Map<String, Object> userData = new HashMap<>();
                             userData.put("name", name);
                             userData.put("email", email);
                             userData.put("address", address);
                             userData.put("gender", gender);
                             userData.put("birthday", birthday);
+                            userData.put("role", "cliente"); // Rol por defecto
 
                             db.collection("users").document(currentUser.getUid()).set(userData)
                                     .addOnSuccessListener(aVoid -> {
-                                        Toast.makeText(RegisterActivity.this, "Usuario registrado exitosamente", Toast.LENGTH_SHORT).show();
-                                        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                        Toast.makeText(RegisterUserActivity.this, "Usuario registrado exitosamente", Toast.LENGTH_SHORT).show();
+                                        Intent intent = new Intent(RegisterUserActivity.this, LoginActivity.class);
                                         startActivity(intent);
                                         finish();
                                     })
                                     .addOnFailureListener(e -> {
-                                        Toast.makeText(RegisterActivity.this, "Error al guardar los datos del usuario", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(RegisterUserActivity.this, "Error al guardar los datos del usuario", Toast.LENGTH_SHORT).show();
                                     });
                         }
                     } else {
-                        Toast.makeText(RegisterActivity.this, "Error al registrar usuario: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RegisterUserActivity.this, "Error al registrar usuario: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }

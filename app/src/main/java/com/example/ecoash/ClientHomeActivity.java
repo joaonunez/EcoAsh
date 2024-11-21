@@ -7,12 +7,12 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.ecoash.R;
 
 
-public class WelcomeUserActivity extends AppCompatActivity {
+public class ClientHomeActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_welcome_user);
+        setContentView(R.layout.activity_client_home);
 
         ViewPager2 viewPager = findViewById(R.id.viewPager);
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
