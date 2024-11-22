@@ -1,8 +1,6 @@
 package com.example.ecoash;
 
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +8,6 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -18,7 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +26,6 @@ public class AdminDeviceCreationFragment extends Fragment {
 
     private EditText deviceNameInput;
     private AutoCompleteTextView userEmailInput;
-    private ImageView wifiIcon, bluetoothIcon;
     private Button registerDeviceButton;
 
     private FirebaseFirestore firestore;
@@ -46,16 +42,10 @@ public class AdminDeviceCreationFragment extends Fragment {
         // Inicializar lista para correos
         userEmails = new ArrayList<>();
 
-        // Referencias a los elementos de la vista
+        // Referenciar elementos de la vista
         deviceNameInput = view.findViewById(R.id.deviceNameInput);
         userEmailInput = view.findViewById(R.id.userEmailInput);
-        wifiIcon = view.findViewById(R.id.wifiIcon);
-        bluetoothIcon = view.findViewById(R.id.bluetoothIcon);
         registerDeviceButton = view.findViewById(R.id.registerDeviceButton);
-
-        // Configurar íconos
-        wifiIcon.setOnClickListener(v -> Toast.makeText(getActivity(), "Conexión Wi-Fi (próximamente)", Toast.LENGTH_SHORT).show());
-        bluetoothIcon.setOnClickListener(v -> Toast.makeText(getActivity(), "Conexión Bluetooth (próximamente)", Toast.LENGTH_SHORT).show());
 
         // Configurar autocompletado para el correo del usuario
         setupUserEmailAutocomplete();
@@ -72,7 +62,7 @@ public class AdminDeviceCreationFragment extends Fragment {
                 .whereEqualTo("role", "cliente")
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
-                    for (com.google.firebase.firestore.QueryDocumentSnapshot document : querySnapshot) { // Declarar tipo explícitamente
+                    for (QueryDocumentSnapshot document : querySnapshot) {
                         String email = document.getString("email");
                         if (email != null) {
                             userEmails.add(email);
@@ -83,20 +73,6 @@ public class AdminDeviceCreationFragment extends Fragment {
                     userEmailInput.setAdapter(adapter);
                 })
                 .addOnFailureListener(e -> Toast.makeText(getActivity(), "Error al cargar correos: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-
-        // Configurar eventos al escribir
-        userEmailInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) { }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                // Opcional: puedes añadir funcionalidad adicional aquí
-            }
-        });
     }
 
     private void registerDevice() {
@@ -108,10 +84,13 @@ public class AdminDeviceCreationFragment extends Fragment {
             return;
         }
 
+        // Si no se proporciona un correo, el dispositivo será registrado como "sin asignar"
+        String assignedEmail = userEmail.isEmpty() ? "Sin asignar" : userEmail;
+
         // Datos iniciales del dispositivo
         Map<String, Object> deviceData = new HashMap<>();
         deviceData.put("name", deviceName);
-        deviceData.put("userEmail", userEmail.isEmpty() ? null : userEmail); // Guardar correo si existe
+        deviceData.put("userEmail", assignedEmail);
         deviceData.put("PM2.5", 0.0);
         deviceData.put("PM10", 0.0);
         deviceData.put("CO2", 0.0);

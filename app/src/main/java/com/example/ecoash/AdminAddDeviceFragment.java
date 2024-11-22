@@ -23,7 +23,7 @@ public class AdminAddDeviceFragment extends Fragment {
         btnRegisterAdminDevice.setOnClickListener(v -> {
             // Redirigir al fragmento de creación de dispositivo
             FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment_container, new AdminDeviceCreationFragment());
+            transaction.replace(R.id.fragment_container, new AdminDeviceCreationFragment()); // fragment_container debe estar en el diseño principal
             transaction.addToBackStack(null);
             transaction.commit();
         });

@@ -88,14 +88,15 @@ public class LoginActivity extends AppCompatActivity {
                                         if (documentSnapshot.exists()) {
                                             String role = documentSnapshot.getString("role");
                                             saveEmailToSharedPreferences(email); // Guardar email al iniciar sesión
-                                            if ("com/example/ecoash/admin".equals(role)) {
+                                            if ("admin".equals(role)) { // Cambiar la comparación aquí
                                                 // Redirigir a la vista de administrador
                                                 Intent intent = new Intent(LoginActivity.this, AdminHomeActivity.class);
                                                 startActivity(intent);
-                                            } else {
-                                                // Redirigir a la vista del cliente
+                                            } else if ("cliente".equals(role)) { // Redirigir a la vista del cliente
                                                 Intent intent = new Intent(LoginActivity.this, ClientHomeActivity.class);
                                                 startActivity(intent);
+                                            } else {
+                                                Toast.makeText(LoginActivity.this, "Rol no reconocido", Toast.LENGTH_SHORT).show();
                                             }
                                             finish();
                                         } else {

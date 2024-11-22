@@ -1,13 +1,17 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/nav_add"
         android:icon="@drawable/ic_add"
-        android:title="Agregar" />
+        android:title="Agregar Dispositivo"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/nav_manage"
         android:icon="@drawable/ic_manage"
-        android:title="Administrar" />
+        android:title="Gestionar Dispositivos"
+        app:showAsAction="ifRoom" />
 
 </menu>
