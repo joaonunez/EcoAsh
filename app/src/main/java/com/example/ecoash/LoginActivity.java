@@ -88,7 +88,7 @@ public class LoginActivity extends AppCompatActivity {
                                         if (documentSnapshot.exists()) {
                                             String role = documentSnapshot.getString("role");
                                             saveEmailToSharedPreferences(email); // Guardar email al iniciar sesión
-                                            if ("admin".equals(role)) {
+                                            if ("com/example/ecoash/admin".equals(role)) {
                                                 // Redirigir a la vista de administrador
                                                 Intent intent = new Intent(LoginActivity.this, AdminHomeActivity.class);
                                                 startActivity(intent);

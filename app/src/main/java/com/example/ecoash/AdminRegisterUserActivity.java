@@ -61,7 +61,7 @@ public class AdminRegisterUserActivity extends AppCompatActivity {
                             Map<String, Object> userData = new HashMap<>();
                             userData.put("name", name);
                             userData.put("email", email);
-                            userData.put("role", "admin"); // Rol admin
+                            userData.put("role", "com/example/ecoash/admin"); // Rol admin
 
                             db.collection("users").document(currentUser.getUid()).set(userData)
                                     .addOnSuccessListener(aVoid -> {
