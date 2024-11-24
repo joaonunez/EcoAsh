@@ -13,39 +13,40 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class AdminManageDeviceFragment extends Fragment {
 
-    private FirebaseFirestore firestore;
+    private DatabaseReference realtimeDatabase;
     private LinearLayout devicesContainer;
     private EditText searchInput;
 
-    private List<DocumentSnapshot> allDevices; // Lista para almacenar todos los dispositivos
+    private List<HashMap<String, Object>> allDevices;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_admin_manage_device, container, false);
 
-        // Inicializar Firestore
-        firestore = FirebaseFirestore.getInstance();
+        // Inicializar Realtime Database
+        realtimeDatabase = FirebaseDatabase.getInstance().getReference("dispositivos");
 
-        // Referenciar contenedor donde se renderizan las tarjetas
+        // Referenciar elementos del layout
         devicesContainer = view.findViewById(R.id.devicesContainer);
-        searchInput = view.findViewById(R.id.searchInput); // Referenciar el campo de búsqueda
+        searchInput = view.findViewById(R.id.searchInput);
 
-        // Configurar escucha para el filtro de búsqueda
+        // Configurar búsqueda en tiempo real
         setupSearchListener();
 
-        // Cargar dispositivos
+        // Cargar dispositivos desde la base de datos
         loadDevices();
 
         return view;
@@ -54,9 +55,7 @@ public class AdminManageDeviceFragment extends Fragment {
     private void setupSearchListener() {
         searchInput.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // No se necesita implementar
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -64,81 +63,73 @@ public class AdminManageDeviceFragment extends Fragment {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
-                // No se necesita implementar
-            }
+            public void afterTextChanged(Editable s) {}
         });
     }
 
     private void loadDevices() {
-        firestore.collection("dispositivos").get()
-                .addOnSuccessListener(querySnapshot -> {
-                    allDevices = new ArrayList<>(querySnapshot.getDocuments()); // Guardar todos los dispositivos
-                    devicesContainer.removeAllViews(); // Limpiar vistas previas
+        realtimeDatabase.get()
+                .addOnSuccessListener(dataSnapshot -> {
+                    allDevices = new ArrayList<>();
+                    devicesContainer.removeAllViews();
 
-                    // Mostrar todos los dispositivos al inicio
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        HashMap<String, Object> device = (HashMap<String, Object>) snapshot.getValue();
+                        if (device != null) {
+                            device.put("id", snapshot.getKey());
+                            allDevices.add(device);
+                        }
+                    }
+
+                    // Mostrar todos los dispositivos inicialmente
                     filterDevices("");
                 })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Error al cargar dispositivos: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+                .addOnFailureListener(e -> Toast.makeText(requireContext(), "Error al cargar dispositivos: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
     private void filterDevices(String query) {
-        devicesContainer.removeAllViews(); // Limpiar las tarjetas actuales
+        devicesContainer.removeAllViews();
 
-        for (DocumentSnapshot document : allDevices) {
-            String deviceId = document.getId();
-            String deviceName = document.getString("name");
-            String userEmail = document.getString("userEmail");
+        for (HashMap<String, Object> device : allDevices) {
+            String userEmail = (String) device.get("userEmail");
 
-            // Filtrar dispositivos cuyo correo coincida parcialmente con la búsqueda
             if (userEmail != null && userEmail.toLowerCase().contains(query.toLowerCase())) {
-                addDeviceCard(deviceId, deviceName, userEmail);
+                viewDeviceCard(device);
             } else if (userEmail == null || userEmail.equalsIgnoreCase("Sin asignar")) {
-                addDeviceCard(deviceId, deviceName, "Sin asignar");
+                viewDeviceCard(device);
             }
         }
     }
 
-    private void addDeviceCard(String deviceId, String deviceName, String userEmail) {
-        // Crear un CardView programáticamente
-        CardView cardView = new CardView(getContext());
-        cardView.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        ));
-        cardView.setCardElevation(8);
-        cardView.setRadius(16);
-        cardView.setUseCompatPadding(true);
+    private void viewDeviceCard(HashMap<String, Object> device) {
+        LayoutInflater inflater = LayoutInflater.from(requireContext());
+        View cardView = inflater.inflate(R.layout.device_card, devicesContainer, false);
 
-        // Crear un LinearLayout para el contenido del CardView
-        LinearLayout cardContent = new LinearLayout(getContext());
-        cardContent.setOrientation(LinearLayout.VERTICAL);
-        cardContent.setPadding(24, 24, 24, 24);
+        // Referenciar elementos del card
+        TextView deviceName = cardView.findViewById(R.id.deviceName);
+        TextView userEmail = cardView.findViewById(R.id.userEmail);
+        TextView co2 = cardView.findViewById(R.id.co2);
+        TextView pm25 = cardView.findViewById(R.id.pm25);
+        TextView pm10 = cardView.findViewById(R.id.pm10);
+        TextView humidity = cardView.findViewById(R.id.humidity);
+        TextView temperature = cardView.findViewById(R.id.temperature);
 
-        // Crear vistas para los datos del dispositivo
-        TextView deviceNameView = new TextView(getContext());
-        deviceNameView.setText("Dispositivo: " + deviceName);
-        deviceNameView.setTextSize(18);
-        deviceNameView.setPadding(0, 0, 0, 8);
+        // Configurar datos del dispositivo
+        deviceName.setText((String) device.get("name"));
+        userEmail.setText((String) device.getOrDefault("userEmail", "Sin asignar")); // Sin prefijo redundante
+        co2.setText("CO2: " + device.getOrDefault("CO2", 0) + " ppm");
+        pm25.setText("PM2.5: " + device.getOrDefault("PM25", 0) + " µg/m³");
+        pm10.setText("PM10: " + device.getOrDefault("PM10", 0) + " µg/m³");
+        humidity.setText("Humedad: " + device.getOrDefault("humedad", 0) + " %");
 
-        TextView deviceIdView = new TextView(getContext());
-        deviceIdView.setText("ID: " + deviceId);
-        deviceIdView.setPadding(0, 0, 0, 8);
+        HashMap<String, Object> tempData = (HashMap<String, Object>) device.get("temperatura");
+        if (tempData != null) {
+            temperature.setText("Temperatura: " + tempData.get("celsius") + " °C / " + tempData.get("fahrenheit") + " °F");
+        } else {
+            temperature.setText("Temperatura: No disponible");
+        }
 
-        TextView userEmailView = new TextView(getContext());
-        userEmailView.setText("Correo: " + userEmail);
-
-        // Agregar las vistas al contenido del CardView
-        cardContent.addView(deviceNameView);
-        cardContent.addView(deviceIdView);
-        cardContent.addView(userEmailView);
-
-        // Agregar el contenido al CardView
-        cardView.addView(cardContent);
-
-        // Agregar el CardView al contenedor principal
+        // Agregar la tarjeta al contenedor
         devicesContainer.addView(cardView);
     }
 }

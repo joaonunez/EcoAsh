@@ -6,7 +6,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 // Importar los fragmentos correspondientes
-import com.example.ecoash.AdminAddDeviceFragment;
+import com.example.ecoash.AdminDeviceCreationFragment;
 import com.example.ecoash.AdminManageDeviceFragment;
 import com.example.ecoash.ClientDeviceManagementFragment;
 import com.example.ecoash.ClientPersonalDataFragment;
@@ -26,11 +26,11 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
         if (fragmentActivity instanceof AdminHomeActivity) {
             switch (position) {
                 case 0:
-                    return new AdminAddDeviceFragment(); // Fragmento para agregar dispositivo (admin)
+                    return new AdminDeviceCreationFragment(); // Fragmento para agregar dispositivo (admin)
                 case 1:
                     return new AdminManageDeviceFragment(); // Fragmento para administrar dispositivos (admin)
                 default:
-                    return new AdminAddDeviceFragment(); // Predeterminado
+                    return new AdminDeviceCreationFragment(); // Predeterminado
             }
         } else if (fragmentActivity instanceof ClientHomeActivity) {
             switch (position) {

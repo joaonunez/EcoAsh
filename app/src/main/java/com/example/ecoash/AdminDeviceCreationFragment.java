@@ -1,6 +1,8 @@
 package com.example.ecoash;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,13 +16,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class AdminDeviceCreationFragment extends Fragment {
 
@@ -29,6 +32,7 @@ public class AdminDeviceCreationFragment extends Fragment {
     private Button registerDeviceButton;
 
     private FirebaseFirestore firestore;
+    private DatabaseReference realtimeDatabase; // Realtime Database Reference
     private List<String> userEmails;
 
     @Nullable
@@ -36,8 +40,9 @@ public class AdminDeviceCreationFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_admin_device_creation, container, false);
 
-        // Inicializar Firebase Firestore
+        // Inicializar Firebase Firestore y Realtime Database
         firestore = FirebaseFirestore.getInstance();
+        realtimeDatabase = FirebaseDatabase.getInstance().getReference("dispositivos");
 
         // Inicializar lista para correos
         userEmails = new ArrayList<>();
@@ -57,7 +62,6 @@ public class AdminDeviceCreationFragment extends Fragment {
     }
 
     private void setupUserEmailAutocomplete() {
-        // Consultar la colección de usuarios con rol cliente
         firestore.collection("users")
                 .whereEqualTo("role", "cliente")
                 .get()
@@ -68,7 +72,6 @@ public class AdminDeviceCreationFragment extends Fragment {
                             userEmails.add(email);
                         }
                     }
-                    // Configurar el adaptador de autocompletado
                     ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line, userEmails);
                     userEmailInput.setAdapter(adapter);
                 })
@@ -84,28 +87,26 @@ public class AdminDeviceCreationFragment extends Fragment {
             return;
         }
 
-        // Si no se proporciona un correo, el dispositivo será registrado como "sin asignar"
         String assignedEmail = userEmail.isEmpty() ? "Sin asignar" : userEmail;
 
-        // Datos iniciales del dispositivo
-        Map<String, Object> deviceData = new HashMap<>();
+        // Datos iniciales del dispositivo (reemplazando caracteres no permitidos)
+        HashMap<String, Object> deviceData = new HashMap<>();
         deviceData.put("name", deviceName);
         deviceData.put("userEmail", assignedEmail);
-        deviceData.put("PM2.5", 0.0);
+        deviceData.put("PM2_5", 0.0); // Cambiar "PM2.5" a "PM2_5"
         deviceData.put("PM10", 0.0);
         deviceData.put("CO2", 0.0);
         deviceData.put("CO", 0.0);
         deviceData.put("monoxido_carbono", 0.0);
-        deviceData.put("temperatura", new HashMap<String, Double>() {{
-            put("celsius", 0.0);
-            put("fahrenheit", 0.0);
-        }});
+        HashMap<String, Double> temperatura = new HashMap<>();
+        temperatura.put("celsius", 0.0);
+        temperatura.put("fahrenheit", 0.0);
+        deviceData.put("temperatura", temperatura);
         deviceData.put("humedad", 0.0);
 
-        // Guardar en Firestore
-        firestore.collection("dispositivos")
-                .add(deviceData)
-                .addOnSuccessListener(documentReference -> {
+        // Guardar en Realtime Database
+        realtimeDatabase.push().setValue(deviceData)
+                .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getActivity(), "Dispositivo registrado con éxito", Toast.LENGTH_SHORT).show();
                     deviceNameInput.setText(""); // Limpiar campos
                     userEmailInput.setText("");
