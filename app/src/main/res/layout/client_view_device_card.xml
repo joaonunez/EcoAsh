@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@android:color/white"
+    android:elevation="4dp"
+    android:layout_margin="8dp">
+
+    <!-- Nombre del dispositivo centrado como título -->
+    <TextView
+        android:id="@+id/deviceName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nombre del dispositivo"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:paddingBottom="8dp" />
+
+    <!-- ID del dispositivo -->
+    <TextView
+        android:id="@+id/deviceId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ID: N/A"
+        android:textSize="14sp"
+        android:paddingBottom="8dp" />
+
+    <!-- CO -->
+    <TextView
+        android:id="@+id/deviceCO"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="CO: N/A"
+        android:textSize="16sp"
+        android:paddingBottom="4dp" />
+
+    <!-- CO2 -->
+    <TextView
+        android:id="@+id/deviceCO2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="CO2: N/A"
+        android:textSize="16sp"
+        android:paddingBottom="4dp" />
+
+    <!-- PM2.5 -->
+    <TextView
+        android:id="@+id/devicePM25"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="PM2.5: N/A"
+        android:textSize="16sp"
+        android:paddingBottom="4dp" />
+
+    <!-- PM10 -->
+    <TextView
+        android:id="@+id/devicePM10"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="PM10: N/A"
+        android:textSize="16sp"
+        android:paddingBottom="4dp" />
+
+    <!-- Humedad -->
+    <TextView
+        android:id="@+id/deviceHumidity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Humedad: N/A"
+        android:textSize="16sp"
+        android:paddingBottom="4dp" />
+
+    <!-- Temperatura -->
+    <TextView
+        android:id="@+id/deviceTemperature"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Temperatura: N/A"
+        android:textSize="16sp" />
+    <TextView
+        android:id="@+id/deviceMonoxide"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Monóxido de Carbono: N/A"
+        android:textSize="16sp"
+        android:paddingBottom="4dp" />
+
+</LinearLayout>

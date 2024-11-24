@@ -3,6 +3,7 @@ package com.example.ecoash;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log; // IMPORT NECESARIO
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,13 +16,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 
 public class AdminManageDeviceFragment extends Fragment {
 
@@ -30,6 +34,7 @@ public class AdminManageDeviceFragment extends Fragment {
     private EditText searchInput;
 
     private List<HashMap<String, Object>> allDevices;
+    private boolean isUpdatingTemperature = false; // Bandera para evitar bucles
 
     @Nullable
     @Override
@@ -46,8 +51,8 @@ public class AdminManageDeviceFragment extends Fragment {
         // Configurar búsqueda en tiempo real
         setupSearchListener();
 
-        // Cargar dispositivos desde la base de datos
-        loadDevices();
+        // Cargar dispositivos en tiempo real
+        loadDevicesInRealTime();
 
         return view;
     }
@@ -67,24 +72,69 @@ public class AdminManageDeviceFragment extends Fragment {
         });
     }
 
-    private void loadDevices() {
-        realtimeDatabase.get()
-                .addOnSuccessListener(dataSnapshot -> {
-                    allDevices = new ArrayList<>();
-                    devicesContainer.removeAllViews();
+    private void loadDevicesInRealTime() {
+        allDevices = new ArrayList<>();
 
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        HashMap<String, Object> device = (HashMap<String, Object>) snapshot.getValue();
-                        if (device != null) {
-                            device.put("id", snapshot.getKey());
-                            allDevices.add(device);
-                        }
-                    }
+        // Listener para detectar cambios en tiempo real
+        realtimeDatabase.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                addOrUpdateDevice(snapshot);
+            }
 
-                    // Mostrar todos los dispositivos inicialmente
-                    filterDevices("");
-                })
-                .addOnFailureListener(e -> Toast.makeText(requireContext(), "Error al cargar dispositivos: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                addOrUpdateDevice(snapshot);
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                removeDevice(snapshot);
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(requireContext(), "Error al cargar dispositivos: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void addOrUpdateDevice(DataSnapshot snapshot) {
+        HashMap<String, Object> device = (HashMap<String, Object>) snapshot.getValue();
+
+        if (device != null) {
+            device.put("id", snapshot.getKey());
+            // Buscar si el dispositivo ya está en la lista
+            boolean exists = false;
+            for (int i = 0; i < allDevices.size(); i++) {
+                if (allDevices.get(i).get("id").equals(device.get("id"))) {
+                    allDevices.set(i, device); // Actualizar si existe
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) {
+                allDevices.add(device); // Agregar si no existe
+            }
+            syncTemperature(snapshot.getRef(), device); // Sincronizar temperaturas
+            filterDevices(searchInput.getText().toString().trim());
+        }
+    }
+
+    private void removeDevice(DataSnapshot snapshot) {
+        String id = snapshot.getKey();
+        if (id != null) {
+            for (int i = 0; i < allDevices.size(); i++) {
+                if (allDevices.get(i).get("id").equals(id)) {
+                    allDevices.remove(i);
+                    break;
+                }
+            }
+            filterDevices(searchInput.getText().toString().trim());
+        }
     }
 
     private void filterDevices(String query) {
@@ -113,14 +163,16 @@ public class AdminManageDeviceFragment extends Fragment {
         TextView pm10 = cardView.findViewById(R.id.pm10);
         TextView humidity = cardView.findViewById(R.id.humidity);
         TextView temperature = cardView.findViewById(R.id.temperature);
+        TextView monoxide = cardView.findViewById(R.id.monoxide); // Monóxido de carbono
 
         // Configurar datos del dispositivo
         deviceName.setText((String) device.get("name"));
-        userEmail.setText((String) device.getOrDefault("userEmail", "Sin asignar")); // Sin prefijo redundante
+        userEmail.setText((String) device.getOrDefault("userEmail", "Sin asignar"));
         co2.setText("CO2: " + device.getOrDefault("CO2", 0) + " ppm");
-        pm25.setText("PM2.5: " + device.getOrDefault("PM25", 0) + " µg/m³");
+        pm25.setText("PM2.5: " + device.getOrDefault("PM2_5", 0) + " µg/m³");
         pm10.setText("PM10: " + device.getOrDefault("PM10", 0) + " µg/m³");
         humidity.setText("Humedad: " + device.getOrDefault("humedad", 0) + " %");
+        monoxide.setText("Monóxido de Carbono: " + device.getOrDefault("monoxido_carbono", 0) + " ppm");
 
         HashMap<String, Object> tempData = (HashMap<String, Object>) device.get("temperatura");
         if (tempData != null) {
@@ -131,5 +183,38 @@ public class AdminManageDeviceFragment extends Fragment {
 
         // Agregar la tarjeta al contenedor
         devicesContainer.addView(cardView);
+    }
+
+    private void syncTemperature(DatabaseReference deviceRef, HashMap<String, Object> device) {
+        if (isUpdatingTemperature) return; // Prevenir bucles
+        isUpdatingTemperature = true;
+
+        DatabaseReference tempRef = deviceRef.child("temperatura");
+        tempRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                HashMap<String, Object> temp = (HashMap<String, Object>) snapshot.getValue();
+                if (temp != null) {
+                    double celsius = Double.parseDouble(temp.getOrDefault("celsius", 0).toString());
+                    double fahrenheit = Double.parseDouble(temp.getOrDefault("fahrenheit", 0).toString());
+
+                    double calculatedFahrenheit = (celsius * 9 / 5) + 32;
+                    double calculatedCelsius = (fahrenheit - 32) * 5 / 9;
+
+                    if (Math.abs(calculatedFahrenheit - fahrenheit) > 0.01) {
+                        tempRef.child("fahrenheit").setValue(calculatedFahrenheit);
+                    } else if (Math.abs(calculatedCelsius - celsius) > 0.01) {
+                        tempRef.child("celsius").setValue(calculatedCelsius);
+                    }
+                }
+                isUpdatingTemperature = false;
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                isUpdatingTemperature = false;
+                Log.e("AdminSync", "Error al sincronizar temperaturas: " + error.getMessage());
+            }
+        });
     }
 }
