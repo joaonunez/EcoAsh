@@ -9,7 +9,7 @@
         android:id="@+id/searchInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Buscar por correo"
+        android:hint="Buscar por correo de usuario"
         android:padding="12dp"
         android:background="@drawable/rounded_button"
         android:layout_marginBottom="16dp"/>
