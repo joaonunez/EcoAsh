@@ -93,10 +93,7 @@ public class AdminDeviceCreationFragment extends Fragment {
         deviceData.put("CO2", 0.0);
         deviceData.put("CO", 0.0);
         deviceData.put("humedad", 0.0);
-        deviceData.put("temperatura", new HashMap<String, Double>() {{
-            put("celsius", 0.0);
-            put("fahrenheit", 0.0);
-        }});
+        deviceData.put("temperatura", 0.0); // Guardamos solo en Celsius
 
         realtimeDatabase.push().setValue(deviceData)
                 .addOnSuccessListener(aVoid -> {

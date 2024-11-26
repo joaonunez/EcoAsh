@@ -16,6 +16,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ecoash.device.Device;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +32,7 @@ public class ClientDeviceManagementFragment extends Fragment {
     private TextView emptyView;
     private ClientDeviceAdapter deviceAdapter;
     private FirebaseAuth auth;
+    private DatabaseReference realtimeDatabase;
     private List<Device> devices;
 
     @Nullable
@@ -35,6 +41,7 @@ public class ClientDeviceManagementFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_client_device_management, container, false);
 
         auth = FirebaseAuth.getInstance();
+        realtimeDatabase = FirebaseDatabase.getInstance().getReference("dispositivos");
         recyclerView = view.findViewById(R.id.recyclerView);
         progressBar = view.findViewById(R.id.progressBar);
         emptyView = view.findViewById(R.id.emptyView);
@@ -54,21 +61,26 @@ public class ClientDeviceManagementFragment extends Fragment {
         String userEmail = auth.getCurrentUser().getEmail();
         progressBar.setVisibility(View.VISIBLE);
 
-        DeviceRepository.getDevicesByUser(userEmail, new DeviceRepository.DevicesCallback() {
+        realtimeDatabase.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onSuccess(List<Device> devicesLoaded) {
-                progressBar.setVisibility(View.GONE);
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 devices.clear();
-                devices.addAll(devicesLoaded);
+                for (DataSnapshot deviceSnapshot : snapshot.getChildren()) {
+                    Device device = deviceSnapshot.getValue(Device.class);
+                    if (device != null && userEmail.equals(device.getUserEmail())) {
+                        device.setId(deviceSnapshot.getKey());
+                        devices.add(device);
+                    }
+                }
+                progressBar.setVisibility(View.GONE);
                 deviceAdapter.notifyDataSetChanged();
-
                 emptyView.setVisibility(devices.isEmpty() ? View.VISIBLE : View.GONE);
             }
 
             @Override
-            public void onError(Exception e) {
+            public void onCancelled(@NonNull DatabaseError error) {
                 progressBar.setVisibility(View.GONE);
-                Toast.makeText(getContext(), "Error al cargar dispositivos: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Error al cargar dispositivos: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

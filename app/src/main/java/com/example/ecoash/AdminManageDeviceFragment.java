@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,6 +16,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.ecoash.device.Device;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,18 +51,26 @@ public class AdminManageDeviceFragment extends Fragment {
     }
 
     private void loadDevices() {
-        DeviceRepository.getAllDevices(new DeviceRepository.DevicesCallback() {
+        realtimeDatabase.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onSuccess(List<Device> devices) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 allDevices.clear();
-                allDevices.addAll(devices);
+                for (DataSnapshot deviceSnapshot : snapshot.getChildren()) {
+                    Device device = deviceSnapshot.getValue(Device.class);
+                    if (device != null) {
+                        device.setId(deviceSnapshot.getKey());
+                        allDevices.add(device);
+                    }
+                }
                 deviceAdapter.notifyDataSetChanged();
             }
 
             @Override
-            public void onError(Exception e) {
-                Toast.makeText(requireContext(), "Error al cargar dispositivos: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(requireContext(), "Error al cargar dispositivos: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
+
+
 }

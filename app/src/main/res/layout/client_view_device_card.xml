@@ -81,12 +81,4 @@
         android:layout_height="wrap_content"
         android:text="Temperatura: N/A"
         android:textSize="16sp" />
-    <TextView
-        android:id="@+id/deviceMonoxide"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Monóxido de Carbono: N/A"
-        android:textSize="16sp"
-        android:paddingBottom="4dp" />
-
 </LinearLayout>

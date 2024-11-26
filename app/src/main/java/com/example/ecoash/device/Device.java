@@ -1,7 +1,5 @@
 package com.example.ecoash.device;
 
-import java.util.Map;
-
 public class Device {
 
     private String id;
@@ -12,7 +10,7 @@ public class Device {
     private Integer PM10;
     private Integer PM2_5;
     private Integer humedad;
-    private Map<String, Object> temperatura;
+    private Double temperatura; // Almacena la temperatura únicamente en Celsius
 
     // Constructor vacío necesario para Firebase
     public Device() {}
@@ -82,11 +80,11 @@ public class Device {
         this.humedad = humedad;
     }
 
-    public Map<String, Object> getTemperatura() {
+    public Double getTemperatura() {
         return temperatura;
     }
 
-    public void setTemperatura(Map<String, Object> temperatura) {
+    public void setTemperatura(Double temperatura) {
         this.temperatura = temperatura;
     }
 }

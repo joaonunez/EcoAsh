@@ -46,38 +46,12 @@ public class AdminDeviceAdapter extends RecyclerView.Adapter<AdminDeviceAdapter.
         holder.deviceHumidity.setText("Humedad: " + (device.getHumedad() != null ? device.getHumedad() + " %" : "N/A"));
 
         if (device.getTemperatura() != null) {
-            holder.deviceTemperature.setText(
-                    "Temperatura: " +
-                            (device.getTemperatura().get("celsius") != null ? device.getTemperatura().get("celsius") + " °C" : "N/A") +
-                            " / " +
-                            (device.getTemperatura().get("fahrenheit") != null ? device.getTemperatura().get("fahrenheit") + " °F" : "N/A")
-            );
+            double celsius = device.getTemperatura();
+            double fahrenheit = (celsius * 9 / 5) + 32;
+            holder.deviceTemperature.setText("Temperatura: " + celsius + " °C / " + fahrenheit + " °F");
         } else {
             holder.deviceTemperature.setText("Temperatura: No disponible");
         }
-
-        holder.deleteButton.setOnClickListener(v -> {
-            String deviceId = device.getId();
-            if (deviceId != null) {
-                realtimeDatabase.child(deviceId).removeValue()
-                        .addOnSuccessListener(aVoid -> {
-                            Toast.makeText(holder.itemView.getContext(), "Dispositivo eliminado con éxito", Toast.LENGTH_SHORT).show();
-
-                            // Verificar que el índice sea válido antes de eliminar
-                            if (position >= 0 && position < devices.size()) {
-                                devices.remove(position);
-                                notifyItemRemoved(position);
-                                notifyItemRangeChanged(position, devices.size()); // Actualizar rangos
-                            } else {
-                                notifyDataSetChanged(); // Refrescar toda la lista si no es seguro
-                            }
-                        })
-                        .addOnFailureListener(e -> {
-                            Toast.makeText(holder.itemView.getContext(), "Error al eliminar dispositivo", Toast.LENGTH_SHORT).show();
-                        });
-            }
-        });
-
     }
 
     @Override
@@ -87,7 +61,6 @@ public class AdminDeviceAdapter extends RecyclerView.Adapter<AdminDeviceAdapter.
 
     static class AdminDeviceViewHolder extends RecyclerView.ViewHolder {
         TextView deviceName, userEmail, deviceCO, deviceCO2, devicePM25, devicePM10, deviceHumidity, deviceTemperature;
-        Button deleteButton;
 
         public AdminDeviceViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -99,7 +72,6 @@ public class AdminDeviceAdapter extends RecyclerView.Adapter<AdminDeviceAdapter.
             devicePM10 = itemView.findViewById(R.id.devicePM10);
             deviceHumidity = itemView.findViewById(R.id.deviceHumidity);
             deviceTemperature = itemView.findViewById(R.id.deviceTemperature);
-            deleteButton = itemView.findViewById(R.id.deleteDeviceButton);
         }
     }
 }
