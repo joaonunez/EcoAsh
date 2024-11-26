@@ -3,12 +3,15 @@ package com.example.ecoash;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log; // IMPORT NECESARIO
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,8 +24,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
@@ -32,6 +35,7 @@ public class AdminManageDeviceFragment extends Fragment {
     private DatabaseReference realtimeDatabase;
     private LinearLayout devicesContainer;
     private EditText searchInput;
+    private Spinner filterSpinner;
 
     private List<HashMap<String, Object>> allDevices;
     private boolean isUpdatingTemperature = false; // Bandera para evitar bucles
@@ -47,6 +51,10 @@ public class AdminManageDeviceFragment extends Fragment {
         // Referenciar elementos del layout
         devicesContainer = view.findViewById(R.id.devicesContainer);
         searchInput = view.findViewById(R.id.searchInput);
+        filterSpinner = view.findViewById(R.id.filterSpinner);
+
+        // Configurar opciones del Spinner
+        setupFilterSpinner();
 
         // Configurar búsqueda en tiempo real
         setupSearchListener();
@@ -55,6 +63,28 @@ public class AdminManageDeviceFragment extends Fragment {
         loadDevicesInRealTime();
 
         return view;
+    }
+
+    private void setupFilterSpinner() {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, new String[]{"Buscar por correo", "Ver dispositivos sin usuario"});
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        filterSpinner.setAdapter(adapter);
+
+        filterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) {
+                    searchInput.setVisibility(View.VISIBLE); // Mostrar campo de búsqueda
+                    filterDevices(searchInput.getText().toString().trim());
+                } else {
+                    searchInput.setVisibility(View.GONE); // Ocultar campo de búsqueda
+                    filterUnassignedDevices();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
     }
 
     private void setupSearchListener() {
@@ -89,7 +119,7 @@ public class AdminManageDeviceFragment extends Fragment {
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-                removeDevice(snapshot);
+                removeDevice(snapshot); // Implementado correctamente
             }
 
             @Override
@@ -119,7 +149,7 @@ public class AdminManageDeviceFragment extends Fragment {
             if (!exists) {
                 allDevices.add(device); // Agregar si no existe
             }
-            syncTemperature(snapshot.getRef(), device); // Sincronizar temperaturas
+            sortDevicesByDate(); // Ordenar por fecha
             filterDevices(searchInput.getText().toString().trim());
         }
     }
@@ -137,6 +167,14 @@ public class AdminManageDeviceFragment extends Fragment {
         }
     }
 
+    private void sortDevicesByDate() {
+        Collections.sort(allDevices, (device1, device2) -> {
+            String date1 = (String) device1.getOrDefault("dateOfCreation", "");
+            String date2 = (String) device2.getOrDefault("dateOfCreation", "");
+            return date2.compareTo(date1); // Orden descendente
+        });
+    }
+
     private void filterDevices(String query) {
         devicesContainer.removeAllViews();
 
@@ -145,7 +183,17 @@ public class AdminManageDeviceFragment extends Fragment {
 
             if (userEmail != null && userEmail.toLowerCase().contains(query.toLowerCase())) {
                 viewDeviceCard(device);
-            } else if (userEmail == null || userEmail.equalsIgnoreCase("Sin asignar")) {
+            }
+        }
+    }
+
+    private void filterUnassignedDevices() {
+        devicesContainer.removeAllViews();
+
+        for (HashMap<String, Object> device : allDevices) {
+            String userEmail = (String) device.get("userEmail");
+
+            if (userEmail == null || userEmail.equalsIgnoreCase("Sin asignar")) {
                 viewDeviceCard(device);
             }
         }
@@ -163,7 +211,6 @@ public class AdminManageDeviceFragment extends Fragment {
         TextView pm10 = cardView.findViewById(R.id.pm10);
         TextView humidity = cardView.findViewById(R.id.humidity);
         TextView temperature = cardView.findViewById(R.id.temperature);
-        TextView monoxide = cardView.findViewById(R.id.monoxide); // Monóxido de carbono
 
         // Configurar datos del dispositivo
         deviceName.setText((String) device.get("name"));
@@ -172,49 +219,7 @@ public class AdminManageDeviceFragment extends Fragment {
         pm25.setText("PM2.5: " + device.getOrDefault("PM2_5", 0) + " µg/m³");
         pm10.setText("PM10: " + device.getOrDefault("PM10", 0) + " µg/m³");
         humidity.setText("Humedad: " + device.getOrDefault("humedad", 0) + " %");
-        monoxide.setText("Monóxido de Carbono: " + device.getOrDefault("monoxido_carbono", 0) + " ppm");
 
-        HashMap<String, Object> tempData = (HashMap<String, Object>) device.get("temperatura");
-        if (tempData != null) {
-            temperature.setText("Temperatura: " + tempData.get("celsius") + " °C / " + tempData.get("fahrenheit") + " °F");
-        } else {
-            temperature.setText("Temperatura: No disponible");
-        }
-
-        // Agregar la tarjeta al contenedor
         devicesContainer.addView(cardView);
-    }
-
-    private void syncTemperature(DatabaseReference deviceRef, HashMap<String, Object> device) {
-        if (isUpdatingTemperature) return; // Prevenir bucles
-        isUpdatingTemperature = true;
-
-        DatabaseReference tempRef = deviceRef.child("temperatura");
-        tempRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                HashMap<String, Object> temp = (HashMap<String, Object>) snapshot.getValue();
-                if (temp != null) {
-                    double celsius = Double.parseDouble(temp.getOrDefault("celsius", 0).toString());
-                    double fahrenheit = Double.parseDouble(temp.getOrDefault("fahrenheit", 0).toString());
-
-                    double calculatedFahrenheit = (celsius * 9 / 5) + 32;
-                    double calculatedCelsius = (fahrenheit - 32) * 5 / 9;
-
-                    if (Math.abs(calculatedFahrenheit - fahrenheit) > 0.01) {
-                        tempRef.child("fahrenheit").setValue(calculatedFahrenheit);
-                    } else if (Math.abs(calculatedCelsius - celsius) > 0.01) {
-                        tempRef.child("celsius").setValue(calculatedCelsius);
-                    }
-                }
-                isUpdatingTemperature = false;
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                isUpdatingTemperature = false;
-                Log.e("AdminSync", "Error al sincronizar temperaturas: " + error.getMessage());
-            }
-        });
     }
 }

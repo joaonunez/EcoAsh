@@ -21,9 +21,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 public class AdminDeviceCreationFragment extends Fragment {
 
@@ -87,21 +90,28 @@ public class AdminDeviceCreationFragment extends Fragment {
             return;
         }
 
+        // Asignar correo "Sin asignar" si el campo está vacío
         String assignedEmail = userEmail.isEmpty() ? "Sin asignar" : userEmail;
 
-        // Datos iniciales del dispositivo (reemplazando caracteres no permitidos)
+        // Obtener fecha y hora actual
+        String dateOfCreation = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+
+        // Datos iniciales del dispositivo
         HashMap<String, Object> deviceData = new HashMap<>();
         deviceData.put("name", deviceName);
         deviceData.put("userEmail", assignedEmail);
-        deviceData.put("PM2_5", 0.0); // Cambiar "PM2.5" a "PM2_5"
+        deviceData.put("dateOfCreation", dateOfCreation); // Agregar fecha de creación
+        deviceData.put("PM2_5", 0.0);
         deviceData.put("PM10", 0.0);
         deviceData.put("CO2", 0.0);
         deviceData.put("CO", 0.0);
         deviceData.put("monoxido_carbono", 0.0);
+
         HashMap<String, Double> temperatura = new HashMap<>();
         temperatura.put("celsius", 0.0);
         temperatura.put("fahrenheit", 0.0);
         deviceData.put("temperatura", temperatura);
+
         deviceData.put("humedad", 0.0);
 
         // Guardar en Realtime Database

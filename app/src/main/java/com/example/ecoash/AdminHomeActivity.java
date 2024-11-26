@@ -25,7 +25,13 @@ public class AdminHomeActivity extends AppCompatActivity {
             throw new NullPointerException("bottomNavigationView no está correctamente inicializado");
         }
 
-        
+        // Establecer fragmento inicial al cargar la actividad
+        if (savedInstanceState == null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, new AdminDeviceCreationFragment())
+                    .commit();
+        }
 
         // Configurar listener para cambiar entre fragmentos
         bottomNavigationView.setOnItemSelectedListener(item -> {
