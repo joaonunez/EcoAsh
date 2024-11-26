@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -25,10 +26,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
 
 public class AdminManageDeviceFragment extends Fragment {
 
@@ -38,14 +38,13 @@ public class AdminManageDeviceFragment extends Fragment {
     private Spinner filterSpinner;
 
     private List<HashMap<String, Object>> allDevices;
-    private boolean isUpdatingTemperature = false; // Bandera para evitar bucles
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_admin_manage_device, container, false);
 
-        // Inicializar Realtime Database
+        // Inicializar Firebase Realtime Database
         realtimeDatabase = FirebaseDatabase.getInstance().getReference("dispositivos");
 
         // Referenciar elementos del layout
@@ -53,7 +52,10 @@ public class AdminManageDeviceFragment extends Fragment {
         searchInput = view.findViewById(R.id.searchInput);
         filterSpinner = view.findViewById(R.id.filterSpinner);
 
-        // Configurar opciones del Spinner
+        // Inicializar lista de dispositivos
+        allDevices = new ArrayList<>();
+
+        // Configurar Spinner
         setupFilterSpinner();
 
         // Configurar búsqueda en tiempo real
@@ -103,9 +105,6 @@ public class AdminManageDeviceFragment extends Fragment {
     }
 
     private void loadDevicesInRealTime() {
-        allDevices = new ArrayList<>();
-
-        // Listener para detectar cambios en tiempo real
         realtimeDatabase.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
@@ -119,7 +118,7 @@ public class AdminManageDeviceFragment extends Fragment {
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-                removeDevice(snapshot); // Implementado correctamente
+                removeDevice(snapshot);
             }
 
             @Override
@@ -133,49 +132,61 @@ public class AdminManageDeviceFragment extends Fragment {
     }
 
     private void addOrUpdateDevice(DataSnapshot snapshot) {
-        HashMap<String, Object> device = (HashMap<String, Object>) snapshot.getValue();
+        if (!isAdded() || getContext() == null) {
+            Log.e("AdminManageDeviceFragment", "Fragmento no adjunto al contexto.");
+            return;
+        }
 
+        HashMap<String, Object> device = (HashMap<String, Object>) snapshot.getValue();
         if (device != null) {
             device.put("id", snapshot.getKey());
-            // Buscar si el dispositivo ya está en la lista
+
+            // Buscar y actualizar el dispositivo si ya existe
             boolean exists = false;
             for (int i = 0; i < allDevices.size(); i++) {
                 if (allDevices.get(i).get("id").equals(device.get("id"))) {
-                    allDevices.set(i, device); // Actualizar si existe
+                    allDevices.set(i, device);
                     exists = true;
                     break;
                 }
             }
+
+            // Si no existe, agregarlo
             if (!exists) {
-                allDevices.add(device); // Agregar si no existe
+                allDevices.add(device);
             }
-            sortDevicesByDate(); // Ordenar por fecha
-            filterDevices(searchInput.getText().toString().trim());
+
+            // Actualizar visualización
+            if (filterSpinner.getSelectedItemPosition() == 0) {
+                filterDevices(searchInput.getText().toString().trim());
+            } else {
+                filterUnassignedDevices();
+            }
         }
     }
 
     private void removeDevice(DataSnapshot snapshot) {
+        if (!isAdded() || getContext() == null) {
+            Log.e("AdminManageDeviceFragment", "Fragmento no adjunto al contexto.");
+            return;
+        }
+
         String id = snapshot.getKey();
         if (id != null) {
-            for (int i = 0; i < allDevices.size(); i++) {
-                if (allDevices.get(i).get("id").equals(id)) {
-                    allDevices.remove(i);
-                    break;
-                }
+            allDevices.removeIf(device -> device.get("id").equals(id));
+
+            // Actualizar visualización
+            if (filterSpinner.getSelectedItemPosition() == 0) {
+                filterDevices(searchInput.getText().toString().trim());
+            } else {
+                filterUnassignedDevices();
             }
-            filterDevices(searchInput.getText().toString().trim());
         }
     }
 
-    private void sortDevicesByDate() {
-        Collections.sort(allDevices, (device1, device2) -> {
-            String date1 = (String) device1.getOrDefault("dateOfCreation", "");
-            String date2 = (String) device2.getOrDefault("dateOfCreation", "");
-            return date2.compareTo(date1); // Orden descendente
-        });
-    }
-
     private void filterDevices(String query) {
+        if (!isAdded() || getContext() == null) return;
+
         devicesContainer.removeAllViews();
 
         for (HashMap<String, Object> device : allDevices) {
@@ -188,6 +199,8 @@ public class AdminManageDeviceFragment extends Fragment {
     }
 
     private void filterUnassignedDevices() {
+        if (!isAdded() || getContext() == null) return;
+
         devicesContainer.removeAllViews();
 
         for (HashMap<String, Object> device : allDevices) {
@@ -200,25 +213,31 @@ public class AdminManageDeviceFragment extends Fragment {
     }
 
     private void viewDeviceCard(HashMap<String, Object> device) {
+        if (!isAdded() || getContext() == null) return;
+
         LayoutInflater inflater = LayoutInflater.from(requireContext());
         View cardView = inflater.inflate(R.layout.device_card, devicesContainer, false);
 
         // Referenciar elementos del card
         TextView deviceName = cardView.findViewById(R.id.deviceName);
         TextView userEmail = cardView.findViewById(R.id.userEmail);
-        TextView co2 = cardView.findViewById(R.id.co2);
-        TextView pm25 = cardView.findViewById(R.id.pm25);
-        TextView pm10 = cardView.findViewById(R.id.pm10);
-        TextView humidity = cardView.findViewById(R.id.humidity);
-        TextView temperature = cardView.findViewById(R.id.temperature);
+        Button deleteButton = cardView.findViewById(R.id.deleteDeviceButton);
 
         // Configurar datos del dispositivo
         deviceName.setText((String) device.get("name"));
         userEmail.setText((String) device.getOrDefault("userEmail", "Sin asignar"));
-        co2.setText("CO2: " + device.getOrDefault("CO2", 0) + " ppm");
-        pm25.setText("PM2.5: " + device.getOrDefault("PM2_5", 0) + " µg/m³");
-        pm10.setText("PM10: " + device.getOrDefault("PM10", 0) + " µg/m³");
-        humidity.setText("Humedad: " + device.getOrDefault("humedad", 0) + " %");
+
+        // Configurar botón de eliminar
+        deleteButton.setOnClickListener(v -> {
+            String deviceId = (String) device.get("id");
+            if (deviceId != null) {
+                realtimeDatabase.child(deviceId).removeValue().addOnSuccessListener(aVoid -> {
+                    Toast.makeText(getContext(), "Dispositivo eliminado con éxito", Toast.LENGTH_SHORT).show();
+                }).addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Error al eliminar dispositivo", Toast.LENGTH_SHORT).show();
+                });
+            }
+        });
 
         devicesContainer.addView(cardView);
     }

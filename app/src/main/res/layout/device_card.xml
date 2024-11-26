@@ -46,8 +46,12 @@
                     android:textColor="@android:color/black" />
                 <TextView
                     android:id="@+id/userEmail"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:scrollHorizontally="true"
+                    android:ellipsize="end"
+                    android:singleLine="true"
                     android:text="Sin asignar"
                     android:textSize="18sp"
                     android:paddingBottom="8dp"
@@ -180,5 +184,15 @@
                     android:textColor="@android:color/black" />
             </TableRow>
         </TableLayout>
+
+        <!-- Botón para eliminar dispositivo -->
+        <Button
+            android:id="@+id/deleteDeviceButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Eliminar dispositivo"
+            android:backgroundTint="@android:color/holo_red_dark"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="16dp" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>
