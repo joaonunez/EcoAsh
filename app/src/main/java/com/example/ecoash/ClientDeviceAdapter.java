@@ -8,14 +8,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.HashMap;
+import com.example.ecoash.device.Device;
+
 import java.util.List;
 
 public class ClientDeviceAdapter extends RecyclerView.Adapter<ClientDeviceAdapter.ClientDeviceViewHolder> {
 
-    private List<HashMap<String, Object>> devices;
+    private List<Device> devices;
 
-    public ClientDeviceAdapter(List<HashMap<String, Object>> devices) {
+    public ClientDeviceAdapter(List<Device> devices) {
         this.devices = devices;
     }
 
@@ -28,34 +29,27 @@ public class ClientDeviceAdapter extends RecyclerView.Adapter<ClientDeviceAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ClientDeviceViewHolder holder, int position) {
-        HashMap<String, Object> device = devices.get(position);
+        Device device = devices.get(position);
 
-        // Configurar el nombre como título (centrado y sin prefijo)
-        holder.deviceName.setText((String) device.getOrDefault("name", "Sin nombre"));
+        holder.deviceName.setText(device.getName() != null ? device.getName() : "Sin nombre");
+        holder.deviceId.setText("ID: " + device.getId());
+        holder.deviceCO.setText("CO: " + (device.getCO() != null ? device.getCO() + " ppm" : "N/A"));
+        holder.deviceCO2.setText("CO2: " + (device.getCO2() != null ? device.getCO2() + " ppm" : "N/A"));
+        holder.devicePM25.setText("PM2.5: " + (device.getPM2_5() != null ? device.getPM2_5() + " µg/m³" : "N/A"));
+        holder.devicePM10.setText("PM10: " + (device.getPM10() != null ? device.getPM10() + " µg/m³" : "N/A"));
+        holder.deviceHumidity.setText("Humedad: " + (device.getHumedad() != null ? device.getHumedad() + " %" : "N/A"));
 
-        // Configurar el ID del dispositivo
-        holder.deviceId.setText("ID: " + device.get("id"));
-
-        // Configurar los demás campos
-        holder.deviceCO.setText("CO: " + device.getOrDefault("CO", "N/A") + " ppm");
-        holder.deviceCO2.setText("CO2: " + device.getOrDefault("CO2", "N/A") + " ppm");
-        holder.deviceMonoxide.setText("Monóxido de Carbono: " + device.getOrDefault("monoxido_carbono", "N/A") + " ppm");
-        holder.devicePM25.setText("PM2.5: " + device.getOrDefault("PM2_5", "N/A") + " µg/m³");
-        holder.devicePM10.setText("PM10: " + device.getOrDefault("PM10", "N/A") + " µg/m³");
-        holder.deviceHumidity.setText("Humedad: " + device.getOrDefault("humedad", "N/A") + " %");
-
-        // Configurar la temperatura (mostrando tanto Celsius como Fahrenheit si están disponibles)
-        HashMap<String, Object> temperature = (HashMap<String, Object>) device.get("temperatura");
-        if (temperature != null) {
+        if (device.getTemperatura() != null) {
             holder.deviceTemperature.setText(
-                    "Temperatura: " + temperature.getOrDefault("celsius", "N/A") + " °C / " +
-                            temperature.getOrDefault("fahrenheit", "N/A") + " °F"
+                    "Temperatura: " +
+                            (device.getTemperatura().get("celsius") != null ? device.getTemperatura().get("celsius") + " °C" : "N/A") +
+                            " / " +
+                            (device.getTemperatura().get("fahrenheit") != null ? device.getTemperatura().get("fahrenheit") + " °F" : "N/A")
             );
         } else {
             holder.deviceTemperature.setText("Temperatura: No disponible");
         }
     }
-
 
     @Override
     public int getItemCount() {
@@ -63,7 +57,7 @@ public class ClientDeviceAdapter extends RecyclerView.Adapter<ClientDeviceAdapte
     }
 
     static class ClientDeviceViewHolder extends RecyclerView.ViewHolder {
-        TextView deviceId, deviceName, deviceCO, deviceCO2, deviceMonoxide, devicePM25, devicePM10, deviceHumidity, deviceTemperature;
+        TextView deviceId, deviceName, deviceCO, deviceCO2, devicePM25, devicePM10, deviceHumidity, deviceTemperature;
 
         public ClientDeviceViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -71,12 +65,10 @@ public class ClientDeviceAdapter extends RecyclerView.Adapter<ClientDeviceAdapte
             deviceName = itemView.findViewById(R.id.deviceName);
             deviceCO = itemView.findViewById(R.id.deviceCO);
             deviceCO2 = itemView.findViewById(R.id.deviceCO2);
-            deviceMonoxide = itemView.findViewById(R.id.deviceMonoxide); // Nueva referencia
             devicePM25 = itemView.findViewById(R.id.devicePM25);
             devicePM10 = itemView.findViewById(R.id.devicePM10);
             deviceHumidity = itemView.findViewById(R.id.deviceHumidity);
             deviceTemperature = itemView.findViewById(R.id.deviceTemperature);
         }
     }
-
 }

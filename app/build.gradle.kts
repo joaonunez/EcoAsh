@@ -57,6 +57,9 @@ dependencies {
     // CardView for advanced layouts
     implementation("androidx.cardview:cardview:1.0.0")
 
+    // Annotations for AndroidX (soluciona problemas con @NonNull y @Nullable)
+    implementation("androidx.annotation:annotation:1.6.0")
+
     // Testing dependencies
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

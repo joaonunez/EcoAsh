@@ -19,18 +19,11 @@
         android:layout_height="wrap_content"
         android:hint="Buscar por correo de usuario"
         android:padding="12dp"
-        android:background="@drawable/rounded_button"
         android:layout_marginBottom="16dp" />
 
-    <ScrollView
+    <!-- RecyclerView para dispositivos -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <LinearLayout
-            android:id="@+id/devicesContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"/>
-    </ScrollView>
-
+        android:layout_height="match_parent" />
 </LinearLayout>
