@@ -10,12 +10,12 @@ public class Device {
     private Integer PM10;
     private Integer PM2_5;
     private Integer humedad;
-    private Double temperatura; // Almacena la temperatura únicamente en Celsius
+    private Double temperatura;
 
-    // Constructor vacío necesario para Firebase
+    // Constructor vacío para Firebase
     public Device() {}
 
-    // Getters y Setters
+    // Getters y setters
     public String getId() {
         return id;
     }

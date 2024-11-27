@@ -47,7 +47,7 @@ public class ClientDeviceManagementFragment extends Fragment {
         emptyView = view.findViewById(R.id.emptyView);
 
         devices = new ArrayList<>();
-        deviceAdapter = new ClientDeviceAdapter(devices);
+        deviceAdapter = new ClientDeviceAdapter(requireContext(), devices);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(deviceAdapter);

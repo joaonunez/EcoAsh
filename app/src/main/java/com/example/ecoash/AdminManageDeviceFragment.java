@@ -1,10 +1,12 @@
 package com.example.ecoash;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -14,10 +16,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ecoash.device.Device;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -25,11 +27,14 @@ import java.util.List;
 
 public class AdminManageDeviceFragment extends Fragment {
 
+    private static final String TAG = "AdminManageDevice";
+
     private RecyclerView recyclerView;
-    private EditText searchInput;
+    private ProgressBar progressBar;
+    private TextView emptyView;
     private AdminDeviceAdapter deviceAdapter;
     private DatabaseReference realtimeDatabase;
-    private List<Device> allDevices;
+    private List<Device> devices;
 
     @Nullable
     @Override
@@ -38,10 +43,12 @@ public class AdminManageDeviceFragment extends Fragment {
 
         realtimeDatabase = FirebaseDatabase.getInstance().getReference("dispositivos");
         recyclerView = view.findViewById(R.id.recyclerView);
-        searchInput = view.findViewById(R.id.searchInput);
+        progressBar = view.findViewById(R.id.progressBar);
+        emptyView = view.findViewById(R.id.emptyView);
 
-        allDevices = new ArrayList<>();
-        deviceAdapter = new AdminDeviceAdapter(allDevices, realtimeDatabase);
+        devices = new ArrayList<>();
+        deviceAdapter = new AdminDeviceAdapter(devices, device -> deleteDevice(device.getId()));
+
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(deviceAdapter);
 
@@ -51,26 +58,37 @@ public class AdminManageDeviceFragment extends Fragment {
     }
 
     private void loadDevices() {
+        progressBar.setVisibility(View.VISIBLE);
+
         realtimeDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                allDevices.clear();
+                devices.clear();
                 for (DataSnapshot deviceSnapshot : snapshot.getChildren()) {
                     Device device = deviceSnapshot.getValue(Device.class);
                     if (device != null) {
                         device.setId(deviceSnapshot.getKey());
-                        allDevices.add(device);
+                        devices.add(device); // Orden de Firebase respetado
                     }
                 }
+                progressBar.setVisibility(View.GONE);
                 deviceAdapter.notifyDataSetChanged();
+                emptyView.setVisibility(devices.isEmpty() ? View.VISIBLE : View.GONE);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(requireContext(), "Error al cargar dispositivos: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(getContext(), "Error al cargar dispositivos: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-
+    private void deleteDevice(String deviceId) {
+        realtimeDatabase.child(deviceId).removeValue().addOnSuccessListener(aVoid -> {
+            Toast.makeText(getContext(), "Dispositivo eliminado correctamente", Toast.LENGTH_SHORT).show();
+        }).addOnFailureListener(e -> {
+            Toast.makeText(getContext(), "Error al eliminar dispositivo", Toast.LENGTH_SHORT).show();
+        });
+    }
 }
