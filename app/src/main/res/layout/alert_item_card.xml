@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:margin="8dp"
+    android:elevation="4dp"
+    android:background="@android:color/white">
+
+    <!-- Título de la alerta -->
+    <TextView
+        android:id="@+id/alertTitleTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Título de la alerta"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:paddingBottom="8dp" />
+
+    <!-- Mensaje de la alerta -->
+    <TextView
+        android:id="@+id/alertMessageTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Mensaje de la alerta"
+        android:textSize="16sp" />
+</LinearLayout>

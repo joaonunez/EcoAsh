@@ -1,5 +1,7 @@
 package com.example.ecoash.device;
 
+import java.util.HashMap;
+
 public class Device {
 
     private String id;
@@ -11,6 +13,7 @@ public class Device {
     private Integer PM2_5;
     private Integer humedad;
     private Double temperatura;
+    private HashMap<String, String> alertas;
 
     // Constructor vacío para Firebase
     public Device() {}
@@ -86,5 +89,13 @@ public class Device {
 
     public void setTemperatura(Double temperatura) {
         this.temperatura = temperatura;
+    }
+
+    public HashMap<String, String> getAlertas() {
+        return alertas;
+    }
+
+    public void setAlertas(HashMap<String, String> alertas) {
+        this.alertas = alertas;
     }
 }

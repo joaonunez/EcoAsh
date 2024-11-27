@@ -60,6 +60,13 @@ dependencies {
     // Annotations for AndroidX (soluciona problemas con @NonNull y @Nullable)
     implementation("androidx.annotation:annotation:1.6.0")
 
+    // Retrofit for HTTP requests
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // Gson for JSON parsing
+    implementation("com.google.code.gson:gson:2.10.1")
+
     // Testing dependencies
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

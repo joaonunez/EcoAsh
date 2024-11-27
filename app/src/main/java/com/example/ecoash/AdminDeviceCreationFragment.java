@@ -84,6 +84,10 @@ public class AdminDeviceCreationFragment extends Fragment {
         String assignedEmail = userEmail.isEmpty() ? "Sin asignar" : userEmail;
         String dateOfCreation = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
 
+        // Crear el JSON de alertas vacío
+        HashMap<String, String> emptyAlerts = new HashMap<>();
+
+        // Crear el mapa de datos del dispositivo
         HashMap<String, Object> deviceData = new HashMap<>();
         deviceData.put("name", deviceName);
         deviceData.put("userEmail", assignedEmail);
@@ -93,8 +97,10 @@ public class AdminDeviceCreationFragment extends Fragment {
         deviceData.put("CO2", 0.0);
         deviceData.put("CO", 0.0);
         deviceData.put("humedad", 0.0);
-        deviceData.put("temperatura", 0.0); // Guardamos solo en Celsius
+        deviceData.put("temperatura", 0.0);
+        deviceData.put("alertas", emptyAlerts); // Añadimos el JSON vacío aquí
 
+        // Subir a Firebase Realtime Database
         realtimeDatabase.push().setValue(deviceData)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(requireContext(), "Dispositivo registrado con éxito", Toast.LENGTH_SHORT).show();
