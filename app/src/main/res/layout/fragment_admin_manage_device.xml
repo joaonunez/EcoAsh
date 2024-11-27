@@ -5,21 +5,23 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- ComboBox para seleccionar filtro -->
-    <Spinner
-        android:id="@+id/filterSpinner"
-        android:layout_width="match_parent"
+    <!-- Progress Bar -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp" />
+        android:layout_gravity="center"
+        android:visibility="gone" />
 
-    <!-- Campo de búsqueda -->
-    <EditText
-        android:id="@+id/searchInput"
+    <!-- Texto vacío -->
+    <TextView
+        android:id="@+id/emptyView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Buscar por correo de usuario"
-        android:padding="12dp"
-        android:layout_marginBottom="16dp" />
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="No hay dispositivos disponibles"
+        android:visibility="gone" />
 
     <!-- RecyclerView para dispositivos -->
     <androidx.recyclerview.widget.RecyclerView
