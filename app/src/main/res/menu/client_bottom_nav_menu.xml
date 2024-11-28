@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_devices"
+        android:icon="@android:drawable/ic_menu_manage"
+        android:title="Dispositivos" />
+
+    <item
+        android:id="@+id/nav_personal_data"
+        android:icon="@android:drawable/ic_menu_myplaces"
+        android:title="Perfil" />
+
+    <item
+        android:id="@+id/nav_alerts"
+        android:icon="@android:drawable/ic_dialog_alert"
+        android:title="Alertas" />
+
+</menu>

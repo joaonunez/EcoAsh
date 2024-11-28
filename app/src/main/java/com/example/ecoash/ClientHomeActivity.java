@@ -7,12 +7,12 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.ecoash.R;
 
 
-public class WelcomeUserActivity extends AppCompatActivity {
+public class ClientHomeActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_welcome_user);
+        setContentView(R.layout.activity_client_home);
 
         ViewPager2 viewPager = findViewById(R.id.viewPager);
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
@@ -20,6 +20,7 @@ public class WelcomeUserActivity extends AppCompatActivity {
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
         viewPager.setAdapter(adapter);
 
+        // Configurar el listener de navegación
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_devices) {
@@ -28,11 +29,14 @@ public class WelcomeUserActivity extends AppCompatActivity {
             } else if (itemId == R.id.nav_personal_data) {
                 viewPager.setCurrentItem(1);
                 return true;
+            } else if (itemId == R.id.nav_alerts) {
+                viewPager.setCurrentItem(2);
+                return true;
             }
             return false;
         });
 
-
+        // Sincronizar la selección de ViewPager con BottomNavigation
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
@@ -43,6 +47,9 @@ public class WelcomeUserActivity extends AppCompatActivity {
                         break;
                     case 1:
                         bottomNavigationView.setSelectedItemId(R.id.nav_personal_data);
+                        break;
+                    case 2:
+                        bottomNavigationView.setSelectedItemId(R.id.nav_alerts);
                         break;
                 }
             }

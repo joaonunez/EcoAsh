@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@android:color/white"
+    android:elevation="4dp"
+    android:layout_margin="8dp">
+
+    <!-- Nombre del dispositivo con botón para editar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/deviceName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Nombre del dispositivo"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/editNameButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_edit"
+            android:background="@null"
+            android:contentDescription="Editar nombre" />
+    </LinearLayout>
+
+    <!-- ID del dispositivo con botón de copiar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingBottom="8dp">
+
+        <TextView
+            android:id="@+id/deviceId"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="ID: N/A"
+            android:textSize="14sp" />
+
+        <ImageButton
+            android:id="@+id/copyIdButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_copy"
+            android:background="@null"
+            android:contentDescription="Copiar ID" />
+    </LinearLayout>
+
+    <!-- Datos adicionales -->
+    <TextView
+        android:id="@+id/deviceCO"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="CO: N/A"
+        android:textSize="16sp"
+        android:paddingBottom="4dp" />
+
+    <TextView
+        android:id="@+id/deviceCO2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="CO2: N/A"
+        android:textSize="16sp"
+        android:paddingBottom="4dp" />
+
+    <TextView
+        android:id="@+id/devicePM25"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="PM2.5: N/A"
+        android:textSize="16sp"
+        android:paddingBottom="4dp" />
+
+    <TextView
+        android:id="@+id/devicePM10"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="PM10: N/A"
+        android:textSize="16sp"
+        android:paddingBottom="4dp" />
+
+    <TextView
+        android:id="@+id/deviceHumidity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Humedad: N/A"
+        android:textSize="16sp"
+        android:paddingBottom="4dp" />
+
+    <TextView
+        android:id="@+id/deviceTemperature"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Temperatura: N/A"
+        android:textSize="16sp" />
+</LinearLayout>

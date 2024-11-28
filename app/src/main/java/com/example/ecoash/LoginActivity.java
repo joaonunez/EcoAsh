@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -21,10 +22,9 @@ import java.util.Set;
 public class LoginActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
-    private AutoCompleteTextView emailEditText; // Cambiado a AutoCompleteTextView
+    private AutoCompleteTextView emailEditText; // Autocompletado
     private EditText passwordEditText;
-    private Button loginButton;
-    private Button backButton; // Botón "Volver"
+    private Button loginButton, backButton, btnAdminRegister; // Botón "Soy administrador"
 
     private SharedPreferences sharedPreferences;
     private static final String PREF_NAME = "UserPreferences";
@@ -41,7 +41,8 @@ public class LoginActivity extends AppCompatActivity {
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
         loginButton = findViewById(R.id.loginButton);
-        backButton = findViewById(R.id.backButton); // Botón "Volver"
+        backButton = findViewById(R.id.backButton);
+        btnAdminRegister = findViewById(R.id.btnAdminRegister); // Botón "Soy administrador"
 
         // Inicializar SharedPreferences
         sharedPreferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -67,6 +68,12 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+
+        // Configura el botón "Soy administrador" para ir a AdminRegisterActivity
+        btnAdminRegister.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, AdminRegisterUserActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void loginUser(String email, String password) {
@@ -75,13 +82,30 @@ public class LoginActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
-                            // Guardar correo al iniciar sesión correctamente
-                            saveEmailToSharedPreferences(email);
-
-                            // Ir a WelcomeUserActivity
-                            Intent intent = new Intent(LoginActivity.this, WelcomeUserActivity.class);
-                            startActivity(intent);
-                            finish();
+                            FirebaseFirestore db = FirebaseFirestore.getInstance();
+                            db.collection("users").document(user.getUid()).get()
+                                    .addOnSuccessListener(documentSnapshot -> {
+                                        if (documentSnapshot.exists()) {
+                                            String role = documentSnapshot.getString("role");
+                                            saveEmailToSharedPreferences(email); // Guardar email al iniciar sesión
+                                            if ("admin".equals(role)) { // Cambiar la comparación aquí
+                                                // Redirigir a la vista de administrador
+                                                Intent intent = new Intent(LoginActivity.this, AdminHomeActivity.class);
+                                                startActivity(intent);
+                                            } else if ("cliente".equals(role)) { // Redirigir a la vista del cliente
+                                                Intent intent = new Intent(LoginActivity.this, ClientHomeActivity.class);
+                                                startActivity(intent);
+                                            } else {
+                                                Toast.makeText(LoginActivity.this, "Rol no reconocido", Toast.LENGTH_SHORT).show();
+                                            }
+                                            finish();
+                                        } else {
+                                            Toast.makeText(LoginActivity.this, "Error: Usuario no encontrado", Toast.LENGTH_SHORT).show();
+                                        }
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(LoginActivity.this, "Error al verificar el rol", Toast.LENGTH_SHORT).show();
+                                    });
                         }
                     } else {
                         Toast.makeText(LoginActivity.this, "Error al iniciar sesión: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();

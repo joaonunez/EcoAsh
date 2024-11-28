@@ -1,6 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.ecoash">
 
+    <!-- Permiso para acceso a Internet -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Permiso para recibir notificaciones (si usas Firebase Cloud Messaging) -->
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -19,20 +25,26 @@
             </intent-filter>
         </activity>
 
-        <!-- Actividad WelcomeUserActivity -->
+        <!-- Actividades de usuario (Cliente) -->
         <activity
-            android:name=".WelcomeUserActivity"
+            android:name=".ClientHomeActivity"
             android:exported="false" />
-
-        <!-- Actividad LoginActivity -->
         <activity
             android:name=".LoginActivity"
-            android:exported="false" />
-
-        <!-- Actividad RegisterActivity -->
+            android:exported="true" />
         <activity
-            android:name=".RegisterActivity"
-            android:exported="false" />
+            android:name=".RegisterUserActivity"
+            android:exported="true" />
 
+        <!-- Actividades de administrador -->
+        <activity
+            android:name=".AdminDashboardActivity"
+            android:exported="true" />
+        <activity
+            android:name=".AdminRegisterUserActivity"
+            android:exported="true" />
+        <activity
+            android:name=".AdminHomeActivity"
+            android:exported="true" />
     </application>
 </manifest>
