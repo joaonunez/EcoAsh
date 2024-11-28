@@ -1,3 +1,8 @@
+<!--
+Nombre del archivo: activity_client_home.xml
+Descripción: Layout principal de la actividad del cliente, que incluye un ViewPager2 para navegar entre fragmentos y un BottomNavigationView para navegación inferior.
+-->
+
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -5,15 +10,18 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <!-- ViewPager2: Contenedor para los fragmentos -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
 
+    <!-- BottomNavigationView: Menú de navegación inferior -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:menu="@menu/client_bottom_nav_menu" />
+
 </LinearLayout>

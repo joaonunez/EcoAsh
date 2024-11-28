@@ -4,8 +4,6 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.example.ecoash.R;
-
 
 public class ClientHomeActivity extends AppCompatActivity {
 
@@ -14,29 +12,31 @@ public class ClientHomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client_home);
 
+        // Vincular las vistas del layout
         ViewPager2 viewPager = findViewById(R.id.viewPager);
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
+        // Configurar el adaptador para el ViewPager
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
         viewPager.setAdapter(adapter);
 
-        // Configurar el listener de navegación
+        // Sincronizar la selección de los botones con el ViewPager
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_devices) {
-                viewPager.setCurrentItem(0);
+                viewPager.setCurrentItem(0); // Primer fragmento: Gestión de dispositivos
                 return true;
             } else if (itemId == R.id.nav_personal_data) {
-                viewPager.setCurrentItem(1);
+                viewPager.setCurrentItem(1); // Segundo fragmento: Datos personales
                 return true;
             } else if (itemId == R.id.nav_alerts) {
-                viewPager.setCurrentItem(2);
+                viewPager.setCurrentItem(2); // Tercer fragmento: Alertas
                 return true;
             }
             return false;
         });
 
-        // Sincronizar la selección de ViewPager con BottomNavigation
+        // Sincronizar el ViewPager con el BottomNavigationView
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
@@ -54,5 +54,8 @@ public class ClientHomeActivity extends AppCompatActivity {
                 }
             }
         });
+
+        // Lógica para monitorear temperatura automáticamente
+        DeviceRepository.monitorTemperatureForCurrentUser();
     }
 }

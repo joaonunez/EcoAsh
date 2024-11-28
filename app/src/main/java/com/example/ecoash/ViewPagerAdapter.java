@@ -24,6 +24,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
+        // Verifica si el fragment pertenece al administrador
         if (fragmentActivity instanceof AdminHomeActivity) {
             switch (position) {
                 case 0:
@@ -31,30 +32,37 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
                 case 1:
                     return new AdminManageDeviceFragment(); // Fragmento para administrar dispositivos (admin)
                 default:
-                    return new AdminDeviceCreationFragment(); // Predeterminado
+                    return new AdminDeviceCreationFragment(); // Fragmento predeterminado para el admin
             }
-        } else if (fragmentActivity instanceof ClientHomeActivity) {
+        }
+        // Verifica si el fragment pertenece al cliente
+        else if (fragmentActivity instanceof ClientHomeActivity) {
             switch (position) {
                 case 0:
                     return new ClientDeviceManagementFragment(); // Gestión de dispositivos
                 case 1:
                     return new ClientPersonalDataFragment(); // Perfil
                 case 2:
-                    return new ClientAlertsFragment(); // Alertas
+                    return new ClientAlertsFragment(); // Fragmento de alertas (sin argumentos)
                 default:
-                    return new ClientDeviceManagementFragment(); // Predeterminado
+                    return new ClientDeviceManagementFragment(); // Fragmento predeterminado para el cliente
             }
         }
-        return new Fragment(); // Fragmento vacío en caso de error
+        // Fragmento vacío en caso de error
+        return new Fragment();
     }
 
     @Override
     public int getItemCount() {
+        // Si es una actividad del administrador
         if (fragmentActivity instanceof AdminHomeActivity) {
             return 2; // Admin: Agregar, Administrar
-        } else if (fragmentActivity instanceof ClientHomeActivity) {
+        }
+        // Si es una actividad del cliente
+        else if (fragmentActivity instanceof ClientHomeActivity) {
             return 3; // Cliente: Dispositivos, Personal, Alertas
         }
-        return 0; // En caso de que no sea ninguna actividad válida
+        // En caso de que no sea ninguna actividad válida
+        return 0;
     }
 }

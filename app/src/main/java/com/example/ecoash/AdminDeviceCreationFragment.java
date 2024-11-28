@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class AdminDeviceCreationFragment extends Fragment {
 
@@ -84,8 +85,15 @@ public class AdminDeviceCreationFragment extends Fragment {
         String assignedEmail = userEmail.isEmpty() ? "Sin asignar" : userEmail;
         String dateOfCreation = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
 
-        // Crear el JSON de alertas vacío
-        HashMap<String, String> emptyAlerts = new HashMap<>();
+        // Crear el JSON de alertas inicial
+        String alertId = UUID.randomUUID().toString(); // Generar ID único para la alerta
+        HashMap<String, Object> alertData = new HashMap<>();
+        alertData.put("titulo", "Este es un ejemplo de aviso");
+        alertData.put("mensaje", "Así podrás recibir alertas de los cambios en tu dispositivo");
+        alertData.put("fecha", dateOfCreation);
+
+        HashMap<String, Object> alertsMap = new HashMap<>();
+        alertsMap.put(alertId, alertData);
 
         // Crear el mapa de datos del dispositivo
         HashMap<String, Object> deviceData = new HashMap<>();
@@ -98,7 +106,7 @@ public class AdminDeviceCreationFragment extends Fragment {
         deviceData.put("CO", 0.0);
         deviceData.put("humedad", 0.0);
         deviceData.put("temperatura", 0.0);
-        deviceData.put("alertas", emptyAlerts); // Añadimos el JSON vacío aquí
+        deviceData.put("alertas", alertsMap); // Añadimos la alerta inicial aquí
 
         // Subir a Firebase Realtime Database
         realtimeDatabase.push().setValue(deviceData)
