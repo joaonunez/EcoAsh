@@ -21,7 +21,11 @@ public class DeviceRepository {
     private static final DatabaseReference devicesRef = FirebaseDatabase.getInstance().getReference("dispositivos");
     private static final String TAG = "DeviceRepository";
 
-    public static void monitorMetricsForCurrentUser() {
+    public interface AlertCallback {
+        void onNewAlert();
+    }
+
+    public static void monitorMetricsForCurrentUser(AlertCallback callback) {
         String userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
 
         if (userEmail == null) {
@@ -38,7 +42,7 @@ public class DeviceRepository {
                         Log.d(TAG, "Dispositivo encontrado para el usuario: " + deviceId);
 
                         // Escuchar cambios en todas las métricas del dispositivo
-                        monitorMetrics(deviceId);
+                        monitorMetrics(deviceId, callback);
                     }
                 } else {
                     Log.e(TAG, "No se encontró un dispositivo asociado al usuario.");
@@ -52,52 +56,50 @@ public class DeviceRepository {
         });
     }
 
-    private static void monitorMetrics(String deviceId) {
+    private static void monitorMetrics(String deviceId, AlertCallback callback) {
         DatabaseReference deviceRef = devicesRef.child(deviceId);
 
         // Monitorear temperatura
         monitorMetric(deviceId, deviceRef.child("temperatura"), "Temperatura", "°C",
                 30.0, "Temperatura elevada", "rojo",
                 5.0, "Temperatura baja", "azul",
-                "Temperatura en rango normal", "verde");
+                "Temperatura en rango normal", "verde", callback);
 
         // Monitorear CO
         monitorMetric(deviceId, deviceRef.child("CO"), "CO (Monóxido de Carbono)", "ppm",
                 9.0, "Niveles altos de CO", "rojo",
                 0.0, "CO en niveles bajos", "azul",
-                "CO en niveles normales", "verde");
+                "CO en niveles normales", "verde", callback);
 
         // Monitorear CO2
         monitorMetric(deviceId, deviceRef.child("CO2"), "CO2 (Dióxido de Carbono)", "ppm",
                 1000.0, "CO2 elevado", "rojo",
                 400.0, "CO2 en niveles bajos", "azul",
-                "CO2 en niveles normales", "verde");
+                "CO2 en niveles normales", "verde", callback);
 
-        // Monitorear PM2.5 -> Cambiar a "PM25"
+        // Monitorear PM2.5
         monitorMetric(deviceId, deviceRef.child("PM25"), "PM2.5 (Partículas finas)", "µg/m³",
                 35.0, "Partículas finas altas", "rojo",
                 0.0, "Partículas finas bajas", "azul",
-                "Partículas finas normales", "verde");
+                "Partículas finas normales", "verde", callback);
 
         // Monitorear PM10
         monitorMetric(deviceId, deviceRef.child("PM10"), "PM10 (Partículas gruesas)", "µg/m³",
                 50.0, "Partículas gruesas altas", "rojo",
                 0.0, "Partículas gruesas bajas", "azul",
-                "Partículas gruesas normales", "verde");
+                "Partículas gruesas normales", "verde", callback);
 
         // Monitorear Humedad
         monitorMetric(deviceId, deviceRef.child("humedad"), "Humedad", "%",
                 70.0, "Humedad alta", "rojo",
                 30.0, "Humedad baja", "azul",
-                "Humedad en niveles normales", "verde");
+                "Humedad en niveles normales", "verde", callback);
     }
-
-
 
     private static void monitorMetric(String deviceId, DatabaseReference metricRef, String metricName, String unit,
                                       double highThreshold, String highMessage, String highColor,
                                       double lowThreshold, String lowMessage, String lowColor,
-                                      String normalMessage, String normalColor) {
+                                      String normalMessage, String normalColor, AlertCallback callback) {
         metricRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -111,7 +113,7 @@ public class DeviceRepository {
 
                 // Crear alerta basada en el valor de la métrica
                 createAlert(deviceId, metricName, value, unit, highThreshold, highMessage, highColor,
-                        lowThreshold, lowMessage, lowColor, normalMessage, normalColor);
+                        lowThreshold, lowMessage, lowColor, normalMessage, normalColor, callback);
             }
 
             @Override
@@ -124,7 +126,7 @@ public class DeviceRepository {
     private static void createAlert(String deviceId, String metricName, Double value, String unit,
                                     double highThreshold, String highMessage, String highColor,
                                     double lowThreshold, String lowMessage, String lowColor,
-                                    String normalMessage, String normalColor) {
+                                    String normalMessage, String normalColor, AlertCallback callback) {
         DatabaseReference alertsRef = devicesRef.child(deviceId).child("alertas");
         String fecha = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
 
@@ -149,10 +151,11 @@ public class DeviceRepository {
         Alert alert = new Alert(fecha, mensaje, titulo, color);
 
         // Agregar la alerta a Firebase
-        alertsRef.push().setValue(alert).addOnSuccessListener(aVoid ->
-                Log.d(TAG, "Alerta creada: " + mensaje)
-        ).addOnFailureListener(e ->
-                Log.e(TAG, "Error al crear alerta: " + e.getMessage())
-        );
+        alertsRef.push().setValue(alert).addOnSuccessListener(aVoid -> {
+            Log.d(TAG, "Alerta creada: " + mensaje);
+            callback.onNewAlert(); // Notificar a la UI que hay una nueva alerta
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Error al crear alerta: " + e.getMessage());
+        });
     }
 }

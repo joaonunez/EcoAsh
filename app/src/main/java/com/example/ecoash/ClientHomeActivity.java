@@ -5,9 +5,13 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class ClientHomeActivity extends AppCompatActivity {
+
+    private BadgeDrawable badgeDrawable;
+    private int unreadNotifications = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +26,10 @@ public class ClientHomeActivity extends AppCompatActivity {
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
         viewPager.setAdapter(adapter);
 
+        // Inicializar el BadgeDrawable para las notificaciones
+        badgeDrawable = bottomNavigationView.getOrCreateBadge(R.id.nav_alerts);
+        badgeDrawable.setVisible(false); // Ocultar inicialmente
+
         // Sincronizar la selección de los botones con el ViewPager
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
@@ -33,6 +41,7 @@ public class ClientHomeActivity extends AppCompatActivity {
                 return true;
             } else if (itemId == R.id.nav_alerts) {
                 viewPager.setCurrentItem(2); // Tercer fragmento: Alertas
+                resetBadge(); // Reiniciar el contador de notificaciones al entrar a la vista de alertas
                 return true;
             }
             return false;
@@ -52,12 +61,27 @@ public class ClientHomeActivity extends AppCompatActivity {
                         break;
                     case 2:
                         bottomNavigationView.setSelectedItemId(R.id.nav_alerts);
+                        resetBadge(); // Reiniciar el contador de notificaciones
                         break;
                 }
             }
         });
 
-        // Lógica para monitorear métricas automáticamente
-        DeviceRepository.monitorMetricsForCurrentUser(); // Llama al método general para todas las métricas
+        // Lógica para monitorear métricas automáticamente y actualizar las notificaciones
+        DeviceRepository.monitorMetricsForCurrentUser(this::onNewAlert);
+    }
+
+    // Método para actualizar el badge cuando hay nuevas alertas
+    private void onNewAlert() {
+        unreadNotifications++;
+        badgeDrawable.setNumber(unreadNotifications);
+        badgeDrawable.setVisible(true); // Mostrar el badge
+    }
+
+    // Método para reiniciar el badge al entrar en la vista de alertas
+    private void resetBadge() {
+        unreadNotifications = 0;
+        badgeDrawable.clearNumber();
+        badgeDrawable.setVisible(false); // Ocultar el badge
     }
 }

@@ -1,25 +1,16 @@
-<!--
-Nombre del archivo: client_bottom_nav_menu.xml
-Descripción: Menú para la navegación inferior en la actividad principal del cliente. Contiene opciones para Dispositivos, Perfil y Alertas.
--->
-
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <!-- Menú de dispositivos -->
     <item
         android:id="@+id/nav_devices"
         android:icon="@android:drawable/ic_menu_manage"
         android:title="Dispositivos" />
 
-    <!-- Menú del perfil -->
     <item
         android:id="@+id/nav_personal_data"
         android:icon="@android:drawable/ic_menu_myplaces"
         android:title="Perfil" />
 
-    <!-- Menú de alertas -->
     <item
         android:id="@+id/nav_alerts"
-        android:icon="@android:drawable/ic_dialog_alert"
+        android:icon="@drawable/ic_notification"
         android:title="Alertas" />
 </menu>
