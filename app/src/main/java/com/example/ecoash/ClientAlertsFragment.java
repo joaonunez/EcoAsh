@@ -53,7 +53,6 @@ public class ClientAlertsFragment extends Fragment {
         emptyView = view.findViewById(R.id.emptyView);
 
         alerts = new ArrayList<>();
-        // Pasar el contexto correctamente
         alertsAdapter = new AlertsAdapter(requireContext(), alerts);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -62,7 +61,6 @@ public class ClientAlertsFragment extends Fragment {
         realtimeDatabase = FirebaseDatabase.getInstance().getReference("dispositivos");
         auth = FirebaseAuth.getInstance();
 
-        // Iniciar el flujo para obtener alertas dinámicamente
         loadDeviceIdAndAlerts();
 
         return view;
@@ -77,7 +75,6 @@ public class ClientAlertsFragment extends Fragment {
         }
 
         progressBar.setVisibility(View.VISIBLE);
-        Log.d(TAG, "Buscando dispositivo para el usuario: " + userEmail);
 
         realtimeDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -88,7 +85,6 @@ public class ClientAlertsFragment extends Fragment {
                     String email = deviceSnapshot.child("userEmail").getValue(String.class);
                     if (email != null && email.equals(userEmail)) {
                         deviceId = deviceSnapshot.getKey();
-                        Log.d(TAG, "Dispositivo encontrado con ID: " + deviceId);
                         break;
                     }
                 }
@@ -97,7 +93,6 @@ public class ClientAlertsFragment extends Fragment {
                     loadAlerts(deviceId);
                 } else {
                     progressBar.setVisibility(View.GONE);
-                    Log.w(TAG, "No se encontró un dispositivo asociado al usuario.");
                     Toast.makeText(getContext(), "No se encontraron dispositivos asociados", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -105,15 +100,12 @@ public class ClientAlertsFragment extends Fragment {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 progressBar.setVisibility(View.GONE);
-                Log.e(TAG, "Error al buscar dispositivo: " + error.getMessage(), error.toException());
-                Toast.makeText(getContext(), "Error al buscar dispositivo: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Error al buscar dispositivo", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void loadAlerts(String deviceId) {
-        Log.d(TAG, "Iniciando la carga de alertas para el dispositivo con ID: " + deviceId);
-
         realtimeDatabase.child(deviceId).child("alertas").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -131,14 +123,12 @@ public class ClientAlertsFragment extends Fragment {
                                         alertMap.get("color")
                                 );
                                 alerts.add(alert);
-                                Log.d(TAG, "Alerta cargada: " + alert.getTitulo());
                             }
                         } catch (Exception e) {
                             Log.e(TAG, "Error al procesar la alerta: " + e.getMessage(), e);
                         }
                     }
 
-                    // Ordenar las alertas por fecha en orden descendente
                     alerts.sort((alert1, alert2) -> {
                         try {
                             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
@@ -146,26 +136,20 @@ public class ClientAlertsFragment extends Fragment {
                             Date date2 = dateFormat.parse(alert2.getFecha());
                             return date2.compareTo(date1); // Orden descendente
                         } catch (Exception e) {
-                            Log.e(TAG, "Error al comparar fechas: " + e.getMessage(), e);
                             return 0;
                         }
                     });
-                } else {
-                    Log.w(TAG, "No se encontraron alertas para el dispositivo.");
                 }
 
                 progressBar.setVisibility(View.GONE);
                 alertsAdapter.notifyDataSetChanged();
                 emptyView.setVisibility(alerts.isEmpty() ? View.VISIBLE : View.GONE);
-
-                Log.d(TAG, "Total de alertas cargadas: " + alerts.size());
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 progressBar.setVisibility(View.GONE);
-                Log.e(TAG, "Error al cargar alertas desde Firebase: " + error.getMessage(), error.toException());
-                Toast.makeText(getContext(), "Error al cargar alertas: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Error al cargar alertas", Toast.LENGTH_SHORT).show();
             }
         });
     }

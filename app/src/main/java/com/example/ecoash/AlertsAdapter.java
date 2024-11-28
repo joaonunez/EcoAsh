@@ -2,9 +2,11 @@ package com.example.ecoash;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -13,11 +15,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ecoash.device.Alert;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class AlertsAdapter extends RecyclerView.Adapter<AlertsAdapter.ViewHolder> {
     private final Context context;
     private final List<Alert> alerts;
+    private final long recentThreshold = 60000; // Considera las alertas recientes en 1 minuto
 
     public AlertsAdapter(Context context, List<Alert> alerts) {
         this.context = context;
@@ -35,20 +41,15 @@ public class AlertsAdapter extends RecyclerView.Adapter<AlertsAdapter.ViewHolder
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Alert alert = alerts.get(position);
 
-        // Validar los campos antes de asignarlos
-        String title = alert.getTitulo() != null ? alert.getTitulo() : "Sin título";
-        String message = alert.getMensaje() != null ? alert.getMensaje() : "Sin mensaje";
-        String date = alert.getFecha() != null ? alert.getFecha() : "Fecha desconocida";
+        // Asignar valores a los TextViews
+        holder.title.setText(alert.getTitulo() != null ? alert.getTitulo() : "Sin título");
+        holder.message.setText(alert.getMensaje() != null ? alert.getMensaje() : "Sin mensaje");
+        holder.date.setText(alert.getFecha() != null ? alert.getFecha() : "Fecha desconocida");
 
-        holder.title.setText(title);
-        holder.message.setText(message);
-        holder.date.setText(date);
-
-        // Tipo de alerta
+        // Determinar el tipo y color de alerta
         String alertType = alert.getColor() != null ? alert.getColor().toLowerCase() : "desconocido";
         String alertDescription;
 
-        // Asignar descripción y colores basados en el nivel
         switch (alertType) {
             case "rojo":
                 alertDescription = "Nivel Crítico";
@@ -72,13 +73,42 @@ public class AlertsAdapter extends RecyclerView.Adapter<AlertsAdapter.ViewHolder
                 break;
         }
 
-        // Actualizar texto con descripción del nivel
         holder.alertType.setText(alertDescription);
+
+        // Aplicar animación de parpadeo si la alerta es reciente
+        if (isRecentAlert(alert.getFecha())) {
+            startBlinkAnimation(holder.itemView);
+        } else {
+            holder.itemView.clearAnimation();
+        }
     }
 
     @Override
     public int getItemCount() {
         return alerts.size();
+    }
+
+    private boolean isRecentAlert(String alertDate) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            Date alertTime = dateFormat.parse(alertDate);
+            long currentTime = System.currentTimeMillis();
+            return alertTime != null && currentTime - alertTime.getTime() <= recentThreshold;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private void startBlinkAnimation(View view) {
+        AlphaAnimation blinkAnimation = new AlphaAnimation(1.0f, 0.3f); // Parpadeo de opacidad
+        blinkAnimation.setDuration(500); // Duración de cada parpadeo
+        blinkAnimation.setRepeatCount(20); // Parpadeo durante 10 segundos
+        blinkAnimation.setRepeatMode(AlphaAnimation.REVERSE);
+        view.startAnimation(blinkAnimation);
+
+        // Detener animación después de 10 segundos
+        new Handler().postDelayed(view::clearAnimation, 10000);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
