@@ -1,8 +1,10 @@
 package com.example.ecoash;
 
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class ClientHomeActivity extends AppCompatActivity {
@@ -55,7 +57,7 @@ public class ClientHomeActivity extends AppCompatActivity {
             }
         });
 
-        // Lógica para monitorear temperatura automáticamente
-        DeviceRepository.monitorTemperatureForCurrentUser();
+        // Lógica para monitorear métricas automáticamente
+        DeviceRepository.monitorMetricsForCurrentUser(); // Llama al método general para todas las métricas
     }
 }

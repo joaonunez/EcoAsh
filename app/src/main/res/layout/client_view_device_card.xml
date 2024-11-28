@@ -5,16 +5,17 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="@android:color/white"
-    android:elevation="4dp"
+    android:background="@color/white"
+    android:elevation="8dp"
     android:layout_margin="8dp">
 
-    <!-- Nombre del dispositivo con botón para editar -->
+    <!-- Título del dispositivo -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:paddingBottom="16dp">
 
         <TextView
             android:id="@+id/deviceName"
@@ -23,7 +24,8 @@
             android:layout_weight="1"
             android:text="Nombre del dispositivo"
             android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="@color/primary" />
 
         <ImageButton
             android:id="@+id/editNameButton"
@@ -34,13 +36,16 @@
             android:contentDescription="Editar nombre" />
     </LinearLayout>
 
-    <!-- ID del dispositivo con botón de copiar -->
+    <!-- ID del dispositivo con diseño bonito -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:background="@color/teal_700"
+        android:padding="8dp"
+        android:layout_marginBottom="16dp"
         android:gravity="center_vertical"
-        android:paddingBottom="8dp">
+        android:elevation="4dp">
 
         <TextView
             android:id="@+id/deviceId"
@@ -48,7 +53,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="ID: N/A"
-            android:textSize="14sp" />
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:padding="8dp" />
 
         <ImageButton
             android:id="@+id/copyIdButton"
@@ -59,51 +66,239 @@
             android:contentDescription="Copiar ID" />
     </LinearLayout>
 
-    <!-- Datos adicionales -->
-    <TextView
-        android:id="@+id/deviceCO"
+    <!-- Contenedor de sensores -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="CO: N/A"
-        android:textSize="16sp"
-        android:paddingBottom="4dp" />
+        android:orientation="vertical"
+        android:padding="8dp">
 
-    <TextView
-        android:id="@+id/deviceCO2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="CO2: N/A"
-        android:textSize="16sp"
-        android:paddingBottom="4dp" />
+        <!-- CO -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:background="@color/white"
+            android:layout_marginBottom="8dp"
+            android:elevation="4dp">
 
-    <TextView
-        android:id="@+id/devicePM25"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="PM2.5: N/A"
-        android:textSize="16sp"
-        android:paddingBottom="4dp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="CO (Monóxido de Carbono)"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="@color/black" />
 
-    <TextView
-        android:id="@+id/devicePM10"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="PM10: N/A"
-        android:textSize="16sp"
-        android:paddingBottom="4dp" />
+            <TextView
+                android:id="@+id/deviceCO"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="N/A"
+                android:textSize="24sp"
+                android:gravity="center"
+                android:textColor="@color/primary"
+                android:paddingTop="4dp" />
 
-    <TextView
-        android:id="@+id/deviceHumidity"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Humedad: N/A"
-        android:textSize="16sp"
-        android:paddingBottom="4dp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ppm (partes por millón)"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:textColor="@color/gray" />
+        </LinearLayout>
 
-    <TextView
-        android:id="@+id/deviceTemperature"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Temperatura: N/A"
-        android:textSize="16sp" />
+        <!-- CO2 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:background="@color/white"
+            android:layout_marginBottom="8dp"
+            android:elevation="4dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="CO2 (Dióxido de Carbono)"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/deviceCO2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="N/A"
+                android:textSize="24sp"
+                android:gravity="center"
+                android:textColor="@color/primary"
+                android:paddingTop="4dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ppm (partes por millón)"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:textColor="@color/gray" />
+        </LinearLayout>
+
+        <!-- PM2.5 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:background="@color/white"
+            android:layout_marginBottom="8dp"
+            android:elevation="4dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PM2.5 (Partículas finas)"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/devicePM25"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="N/A"
+                android:textSize="24sp"
+                android:gravity="center"
+                android:textColor="@color/primary"
+                android:paddingTop="4dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="µg/m³ (microgramos por metro cúbico)"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:textColor="@color/gray" />
+        </LinearLayout>
+
+        <!-- PM10 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:background="@color/white"
+            android:layout_marginBottom="8dp"
+            android:elevation="4dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PM10 (Partículas gruesas)"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/devicePM10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="N/A"
+                android:textSize="24sp"
+                android:gravity="center"
+                android:textColor="@color/primary"
+                android:paddingTop="4dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="µg/m³ (microgramos por metro cúbico)"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:textColor="@color/gray" />
+        </LinearLayout>
+
+        <!-- Humedad -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:background="@color/white"
+            android:layout_marginBottom="8dp"
+            android:elevation="4dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Humedad (Relativa)"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/deviceHumidity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="N/A"
+                android:textSize="24sp"
+                android:gravity="center"
+                android:textColor="@color/primary"
+                android:paddingTop="4dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="%(porcentaje)"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:textColor="@color/gray" />
+        </LinearLayout>
+
+        <!-- Temperatura -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:background="@color/white"
+            android:layout_marginBottom="8dp"
+            android:elevation="4dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Temperatura"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/deviceTemperature"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="N/A"
+                android:textSize="24sp"
+                android:gravity="center"
+                android:textColor="@color/primary"
+                android:paddingTop="4dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="14sp"
+                android:gravity="center"
+                android:textColor="@color/gray" />
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>

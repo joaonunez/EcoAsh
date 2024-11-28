@@ -21,7 +21,7 @@ public class DeviceRepository {
     private static final DatabaseReference devicesRef = FirebaseDatabase.getInstance().getReference("dispositivos");
     private static final String TAG = "DeviceRepository";
 
-    public static void monitorTemperatureForCurrentUser() {
+    public static void monitorMetricsForCurrentUser() {
         String userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
 
         if (userEmail == null) {
@@ -37,8 +37,8 @@ public class DeviceRepository {
                         String deviceId = deviceSnapshot.getKey();
                         Log.d(TAG, "Dispositivo encontrado para el usuario: " + deviceId);
 
-                        // Escuchar cambios en la temperatura del dispositivo
-                        monitorTemperature(deviceId);
+                        // Escuchar cambios en todas las métricas del dispositivo
+                        monitorMetrics(deviceId);
                     }
                 } else {
                     Log.e(TAG, "No se encontró un dispositivo asociado al usuario.");
@@ -52,32 +52,79 @@ public class DeviceRepository {
         });
     }
 
-    private static void monitorTemperature(String deviceId) {
+    private static void monitorMetrics(String deviceId) {
         DatabaseReference deviceRef = devicesRef.child(deviceId);
 
-        deviceRef.child("temperatura").addValueEventListener(new ValueEventListener() {
+        // Monitorear temperatura
+        monitorMetric(deviceId, deviceRef.child("temperatura"), "Temperatura", "°C",
+                30.0, "Temperatura elevada", "rojo",
+                5.0, "Temperatura baja", "azul",
+                "Temperatura en rango normal", "verde");
+
+        // Monitorear CO
+        monitorMetric(deviceId, deviceRef.child("CO"), "CO (Monóxido de Carbono)", "ppm",
+                9.0, "Niveles altos de CO", "rojo",
+                0.0, "CO en niveles bajos", "azul",
+                "CO en niveles normales", "verde");
+
+        // Monitorear CO2
+        monitorMetric(deviceId, deviceRef.child("CO2"), "CO2 (Dióxido de Carbono)", "ppm",
+                1000.0, "CO2 elevado", "rojo",
+                400.0, "CO2 en niveles bajos", "azul",
+                "CO2 en niveles normales", "verde");
+
+        // Monitorear PM2.5 -> Cambiar a "PM25"
+        monitorMetric(deviceId, deviceRef.child("PM25"), "PM2.5 (Partículas finas)", "µg/m³",
+                35.0, "Partículas finas altas", "rojo",
+                0.0, "Partículas finas bajas", "azul",
+                "Partículas finas normales", "verde");
+
+        // Monitorear PM10
+        monitorMetric(deviceId, deviceRef.child("PM10"), "PM10 (Partículas gruesas)", "µg/m³",
+                50.0, "Partículas gruesas altas", "rojo",
+                0.0, "Partículas gruesas bajas", "azul",
+                "Partículas gruesas normales", "verde");
+
+        // Monitorear Humedad
+        monitorMetric(deviceId, deviceRef.child("humedad"), "Humedad", "%",
+                70.0, "Humedad alta", "rojo",
+                30.0, "Humedad baja", "azul",
+                "Humedad en niveles normales", "verde");
+    }
+
+
+
+    private static void monitorMetric(String deviceId, DatabaseReference metricRef, String metricName, String unit,
+                                      double highThreshold, String highMessage, String highColor,
+                                      double lowThreshold, String lowMessage, String lowColor,
+                                      String normalMessage, String normalColor) {
+        metricRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Double temperatura = snapshot.getValue(Double.class);
-                if (temperatura == null) {
-                    Log.w(TAG, "La temperatura no está disponible para el dispositivo con ID: " + deviceId);
+                Double value = snapshot.getValue(Double.class);
+                if (value == null) {
+                    Log.w(TAG, "El valor de " + metricName + " no está disponible para el dispositivo con ID: " + deviceId);
                     return;
                 }
 
-                Log.d(TAG, "Nueva temperatura detectada: " + temperatura);
+                Log.d(TAG, "Nuevo valor detectado para " + metricName + ": " + value);
 
-                // Crear alerta basada en la temperatura
-                createAlertBasedOnTemperature(deviceId, temperatura);
+                // Crear alerta basada en el valor de la métrica
+                createAlert(deviceId, metricName, value, unit, highThreshold, highMessage, highColor,
+                        lowThreshold, lowMessage, lowColor, normalMessage, normalColor);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Error al escuchar cambios en la temperatura: " + error.getMessage());
+                Log.e(TAG, "Error al escuchar cambios en " + metricName + ": " + error.getMessage());
             }
         });
     }
 
-    private static void createAlertBasedOnTemperature(String deviceId, Double temperatura) {
+    private static void createAlert(String deviceId, String metricName, Double value, String unit,
+                                    double highThreshold, String highMessage, String highColor,
+                                    double lowThreshold, String lowMessage, String lowColor,
+                                    String normalMessage, String normalColor) {
         DatabaseReference alertsRef = devicesRef.child(deviceId).child("alertas");
         String fecha = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
 
@@ -85,18 +132,18 @@ public class DeviceRepository {
         String titulo;
         String color;
 
-        if (temperatura > 30) {
-            mensaje = "La temperatura ha subido a " + temperatura + "°C.";
-            titulo = "Temperatura elevada";
-            color = "rojo";
-        } else if (temperatura < 5) {
-            mensaje = "La temperatura ha bajado a " + temperatura + "°C.";
-            titulo = "Temperatura baja";
-            color = "azul";
+        if (value > highThreshold) {
+            mensaje = highMessage + ": " + value + " " + unit;
+            titulo = metricName + " alta";
+            color = highColor;
+        } else if (value < lowThreshold) {
+            mensaje = lowMessage + ": " + value + " " + unit;
+            titulo = metricName + " baja";
+            color = lowColor;
         } else {
-            mensaje = "La temperatura está normal a " + temperatura + "°C.";
-            titulo = "Temperatura normal";
-            color = "negro";
+            mensaje = normalMessage + ": " + value + " " + unit;
+            titulo = metricName + " normal";
+            color = normalColor;
         }
 
         Alert alert = new Alert(fecha, mensaje, titulo, color);

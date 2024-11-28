@@ -1,23 +1,58 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/alertCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@android:color/white"
+    android:layout_marginBottom="8dp"
+    android:elevation="4dp"
+    android:layout_margin="8dp">
 
+    <!-- Título de la alerta -->
     <TextView
         android:id="@+id/alertTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Título de la Alerta"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:paddingBottom="8dp" />
 
+    <!-- Mensaje de la alerta -->
     <TextView
         android:id="@+id/alertMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Mensaje de la Alerta" />
+        android:text="Mensaje de la Alerta"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        android:paddingBottom="8dp" />
 
+    <!-- Contenedor para fondo dinámico -->
+    <LinearLayout
+        android:id="@+id/alertBackground"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@android:color/darker_gray"
+        android:elevation="2dp">
+
+        <TextView
+            android:id="@+id/alertType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tipo: Crítico"
+            android:textSize="14sp"
+            android:textColor="@android:color/black"
+            android:paddingBottom="4dp" />
+    </LinearLayout>
+
+    <!-- Fecha y hora de la alerta -->
     <TextView
         android:id="@+id/alertTimestamp"
         android:layout_width="wrap_content"

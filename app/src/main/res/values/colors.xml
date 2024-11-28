@@ -7,5 +7,10 @@
     <color name="primary">#6200EE</color>
     <color name="teal_700">#00897B</color>
     <color name="purple_200">#BB86FC</color>
+    <color name="admin_card_background">#F5F5F5</color>
+    <color name="admin_title_color">#3F51B5</color>
+    <color name="admin_text_color">#333333</color>
+    <color name="admin_value_color">#009688</color>
+    <color name="admin_button_background">#D32F2F</color>
 
 </resources>
