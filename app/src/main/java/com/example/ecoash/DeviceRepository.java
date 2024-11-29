@@ -78,7 +78,7 @@ public class DeviceRepository {
                 "CO2 en niveles normales", "verde", callback);
 
         // Monitorear PM2.5
-        monitorMetric(deviceId, deviceRef.child("PM25"), "PM2.5 (Partículas finas)", "µg/m³",
+        monitorMetric(deviceId, deviceRef.child("PM2_5"), "PM2.5 (Partículas finas)", "µg/m³",
                 35.0, "Partículas finas altas", "rojo",
                 0.0, "Partículas finas bajas", "azul",
                 "Partículas finas normales", "verde", callback);
