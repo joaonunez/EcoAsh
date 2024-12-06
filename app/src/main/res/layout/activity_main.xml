@@ -5,7 +5,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@drawable/main_background"
+    android:alpha="0.8">
 
     <Button
         android:id="@+id/btnLogin"
