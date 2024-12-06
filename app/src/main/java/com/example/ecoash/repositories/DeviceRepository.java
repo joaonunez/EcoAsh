@@ -1,10 +1,10 @@
-package com.example.ecoash;
+package com.example.ecoash.repositories;
 
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.example.ecoash.device.Alert;
+import com.example.ecoash.models.Alert;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;

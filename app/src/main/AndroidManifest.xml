@@ -17,7 +17,7 @@
 
         <!-- Actividad principal -->
         <activity
-            android:name=".MainActivity"
+            android:name=".views.activities.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,24 +27,24 @@
 
         <!-- Actividades de usuario (Cliente) -->
         <activity
-            android:name=".ClientHomeActivity"
+            android:name=".views.activities.ClientHomeActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".views.activities.LoginActivity"
             android:exported="true" />
         <activity
-            android:name=".RegisterUserActivity"
+            android:name=".views.activities.RegisterUserActivity"
             android:exported="true" />
 
         <!-- Actividades de administrador -->
         <activity
-            android:name=".AdminDashboardActivity"
+            android:name=".views.activities.AdminDashboardActivity"
             android:exported="true" />
         <activity
-            android:name=".AdminRegisterUserActivity"
+            android:name=".views.activities.AdminRegisterUserActivity"
             android:exported="true" />
         <activity
-            android:name=".AdminHomeActivity"
+            android:name=".views.activities.AdminHomeActivity"
             android:exported="true" />
     </application>
 </manifest>

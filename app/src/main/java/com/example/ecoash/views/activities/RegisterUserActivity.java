@@ -1,4 +1,4 @@
-package com.example.ecoash;
+package com.example.ecoash.views.activities;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.ecoash.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;

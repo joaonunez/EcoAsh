@@ -1,4 +1,4 @@
-package com.example.ecoash.device;
+package com.example.ecoash.models;
 
 public class Alert {
     private String fecha;

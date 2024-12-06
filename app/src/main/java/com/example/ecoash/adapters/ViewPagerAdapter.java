@@ -1,16 +1,20 @@
-package com.example.ecoash;
+package com.example.ecoash.adapters;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.example.ecoash.views.fragments.AdminDeviceCreationFragment;
+import com.example.ecoash.views.activities.AdminHomeActivity;
+import com.example.ecoash.views.fragments.AdminManageDeviceFragment;
+import com.example.ecoash.views.fragments.ClientAlertsFragment;
+import com.example.ecoash.views.fragments.ClientDeviceManagementFragment;
+import com.example.ecoash.views.activities.ClientHomeActivity;
+import com.example.ecoash.views.fragments.ClientPersonalDataFragment;
+
 // Importar los fragmentos correspondientes
-import com.example.ecoash.AdminDeviceCreationFragment;
-import com.example.ecoash.AdminManageDeviceFragment;
-import com.example.ecoash.ClientAlertsFragment;
-import com.example.ecoash.ClientDeviceManagementFragment;
-import com.example.ecoash.ClientPersonalDataFragment;
+
 
 public class ViewPagerAdapter extends FragmentStateAdapter {
 

@@ -1,4 +1,4 @@
-package com.example.ecoash.device;
+package com.example.ecoash.models;
 
 import java.util.HashMap;
 

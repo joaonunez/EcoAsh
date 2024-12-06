@@ -1,13 +1,14 @@
-package com.example.ecoash;
+package com.example.ecoash.views.activities;
 
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 import android.content.Intent; // Para manejar las Intents
 import android.widget.Toast; // Para mostrar mensajes Toast
+
+import com.example.ecoash.R;
+import com.example.ecoash.adapters.AdminViewPagerAdapter;
 import com.google.firebase.auth.FirebaseAuth; // Para la autenticación con Firebase
 
 

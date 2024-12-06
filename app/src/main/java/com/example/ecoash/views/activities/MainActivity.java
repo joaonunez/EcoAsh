@@ -1,4 +1,4 @@
-package com.example.ecoash;
+package com.example.ecoash.views.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +7,7 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.ecoash.R;
 import com.google.firebase.FirebaseApp;
 
 public class MainActivity extends AppCompatActivity {

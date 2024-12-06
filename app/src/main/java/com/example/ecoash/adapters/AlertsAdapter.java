@@ -1,4 +1,4 @@
-package com.example.ecoash;
+package com.example.ecoash.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -13,7 +13,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.ecoash.device.Alert;
+import com.example.ecoash.R;
+import com.example.ecoash.models.Alert;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

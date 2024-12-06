@@ -1,10 +1,13 @@
-package com.example.ecoash;
+package com.example.ecoash.views.activities;
 
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.ecoash.R;
+import com.example.ecoash.adapters.ViewPagerAdapter;
+import com.example.ecoash.repositories.DeviceRepository;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 

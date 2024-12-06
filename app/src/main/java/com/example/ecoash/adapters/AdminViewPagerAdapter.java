@@ -1,9 +1,12 @@
-package com.example.ecoash;
+package com.example.ecoash.adapters;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
+
+import com.example.ecoash.views.fragments.AdminDeviceCreationFragment;
+import com.example.ecoash.views.fragments.AdminManageDeviceFragment;
 
 public class AdminViewPagerAdapter extends FragmentStateAdapter {
 

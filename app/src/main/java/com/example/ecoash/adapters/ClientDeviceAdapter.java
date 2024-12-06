@@ -1,4 +1,4 @@
-package com.example.ecoash;
+package com.example.ecoash.adapters;
 
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -16,7 +16,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.ecoash.device.Device;
+import com.example.ecoash.R;
+import com.example.ecoash.models.Device;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
