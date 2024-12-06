@@ -6,6 +6,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
+import android.content.Intent; // Para manejar las Intents
+import android.widget.Toast; // Para mostrar mensajes Toast
+import com.google.firebase.auth.FirebaseAuth; // Para la autenticación con Firebase
+
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -27,6 +31,7 @@ public class AdminHomeActivity extends AppCompatActivity {
         AdminViewPagerAdapter adapter = new AdminViewPagerAdapter(this);
         viewPager.setAdapter(adapter);
 
+
         // Configurar listener para sincronizar BottomNavigationView con ViewPager2
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
@@ -36,9 +41,13 @@ public class AdminHomeActivity extends AppCompatActivity {
             } else if (itemId == R.id.nav_manage) {
                 viewPager.setCurrentItem(1, true); // Segundo fragmento: Gestión de dispositivos
                 return true;
+            } else if (itemId == R.id.nav_logout) {
+                handleLogout(); // Llamada al método de logout
+                return true;
             }
             return false;
         });
+
 
         // Sincronizar ViewPager2 con BottomNavigationView
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
@@ -60,5 +69,15 @@ public class AdminHomeActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             viewPager.setCurrentItem(0);
         }
+
+
+    }
+    private void handleLogout() {
+        FirebaseAuth.getInstance().signOut();
+        Toast.makeText(this, "Sesión cerrada", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish(); // Finaliza la actividad actual
     }
 }

@@ -3,7 +3,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="24dp"
+    android:gravity="center"
+    android:background="@color/background">
+
+    <!-- Título de la pantalla -->
+    <TextView
+        android:id="@+id/loginTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Iniciar Sesión"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/primaryText"
+        android:layout_marginBottom="24dp" />
 
     <!-- Campo para el correo electrónico -->
     <AutoCompleteTextView
@@ -12,16 +25,39 @@
         android:layout_height="wrap_content"
         android:hint="Correo electrónico"
         android:inputType="textEmailAddress"
-        android:layout_marginBottom="16dp" />
+        android:drawableStart="@drawable/ic_email"
+        android:drawablePadding="10dp"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/custom_edittext" />
 
-    <!-- Campo para la contraseña -->
-    <EditText
-        android:id="@+id/passwordEditText"
+    <!-- Campo para la contraseña con botón de visibilidad -->
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Contraseña"
-        android:inputType="textPassword"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="16dp">
+
+        <EditText
+            android:id="@+id/passwordEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Contraseña"
+            android:inputType="textPassword"
+            android:padding="12dp"
+            android:drawableStart="@drawable/ic_lock_password"
+            android:drawablePadding="10dp"
+            android:background="@drawable/custom_edittext" />
+
+        <ImageButton
+            android:id="@+id/viewPasswordButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_eye_closed"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:padding="12dp" />
+    </RelativeLayout>
 
     <!-- Botón para iniciar sesión -->
     <Button
@@ -29,7 +65,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Iniciar sesión"
+        android:background="@drawable/custom_button"
+        android:textColor="@color/white"
         android:layout_marginBottom="16dp" />
+
+
+
+    <!-- Espacio para el mensaje "Iniciando sesión..." -->
+    <TextView
+        android:id="@+id/loadingMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:text="Iniciando sesión..."
+        android:textColor="@color/primaryText"
+        android:layout_marginTop="8dp"
+        android:gravity="center" />
 
     <!-- Botón para volver -->
     <Button
@@ -37,8 +88,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Volver"
-        android:layout_marginTop="8dp" />
-
+        android:background="@drawable/custom_button_secondary"
+        android:textColor="@color/primaryText"
+        android:layout_marginBottom="16dp" />
     <Button
         android:id="@+id/btnAdminRegister"
         android:layout_width="wrap_content"

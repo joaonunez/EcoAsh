@@ -1,13 +1,22 @@
 package com.example.ecoash;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.InputType;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.TranslateAnimation;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,9 +31,12 @@ import java.util.Set;
 public class LoginActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
-    private AutoCompleteTextView emailEditText; // Autocompletado
+    private AutoCompleteTextView emailEditText;
     private EditText passwordEditText;
-    private Button loginButton, backButton, btnAdminRegister; // Botón "Soy administrador"
+    private ImageButton viewPasswordButton;
+    private Button loginButton, backButton, btnAdminRegister;
+    private TextView loginButtonTextView;
+    private boolean isPasswordVisible = false;
 
     private SharedPreferences sharedPreferences;
     private static final String PREF_NAME = "UserPreferences";
@@ -35,41 +47,59 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        // Inicializar Firebase Auth
         mAuth = FirebaseAuth.getInstance();
 
-        // Referencias a vistas
+        // Referencias a los elementos de la interfaz
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
+        viewPasswordButton = findViewById(R.id.viewPasswordButton);
         loginButton = findViewById(R.id.loginButton);
         backButton = findViewById(R.id.backButton);
-        btnAdminRegister = findViewById(R.id.btnAdminRegister); // Botón "Soy administrador"
+        btnAdminRegister = findViewById(R.id.btnAdminRegister);
 
         // Inicializar SharedPreferences
         sharedPreferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
 
-        // Cargar correos almacenados en SharedPreferences
+        // Cargar correos almacenados
         loadSavedEmails();
 
-        // Configura el botón de inicio de sesión
-        loginButton.setOnClickListener(view -> {
-            String email = emailEditText.getText().toString().trim();
-            String password = passwordEditText.getText().toString().trim();
+        // Mostrar/Ocultar contraseña
+        viewPasswordButton.setOnClickListener(view -> togglePasswordVisibility());
 
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(LoginActivity.this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
-            } else {
-                loginUser(email, password);
-            }
+        // Acción del botón "Iniciar sesión"
+        loginButton.setOnClickListener(view -> {
+            // Cambiar el texto del botón a "Autenticando..."
+            loginButton.setText("Autenticando...");
+
+            // Aplicar animación al texto del botón
+            animateButtonText();
+
+            // Cambiar el color del fondo del botón
+            animateButtonBackgroundColor();
+
+            // Simular un retraso para la autenticación
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                String email = emailEditText.getText().toString().trim();
+                String password = passwordEditText.getText().toString().trim();
+
+                if (email.isEmpty() || password.isEmpty()) {
+                    Toast.makeText(LoginActivity.this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
+                    resetLoginButton(); // Restablecer el botón
+                } else {
+                    loginUser(email, password); // Método original para iniciar sesión
+                }
+            }, 2000); // Retraso de 2 segundos
         });
 
-        // Configura el botón "Volver" para regresar al MainActivity
+        // Acción del botón "Volver"
         backButton.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         });
 
-        // Configura el botón "Soy administrador" para ir a AdminRegisterActivity
+        // Acción del botón "Soy administrador"
         btnAdminRegister.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, AdminRegisterUserActivity.class);
             startActivity(intent);
@@ -87,12 +117,11 @@ public class LoginActivity extends AppCompatActivity {
                                     .addOnSuccessListener(documentSnapshot -> {
                                         if (documentSnapshot.exists()) {
                                             String role = documentSnapshot.getString("role");
-                                            saveEmailToSharedPreferences(email); // Guardar email al iniciar sesión
-                                            if ("admin".equals(role)) { // Cambiar la comparación aquí
-                                                // Redirigir a la vista de administrador
+                                            saveEmailToSharedPreferences(email);
+                                            if ("admin".equals(role)) {
                                                 Intent intent = new Intent(LoginActivity.this, AdminHomeActivity.class);
                                                 startActivity(intent);
-                                            } else if ("cliente".equals(role)) { // Redirigir a la vista del cliente
+                                            } else if ("cliente".equals(role)) {
                                                 Intent intent = new Intent(LoginActivity.this, ClientHomeActivity.class);
                                                 startActivity(intent);
                                             } else {
@@ -101,16 +130,44 @@ public class LoginActivity extends AppCompatActivity {
                                             finish();
                                         } else {
                                             Toast.makeText(LoginActivity.this, "Error: Usuario no encontrado", Toast.LENGTH_SHORT).show();
+                                            resetLoginButton(); // Restablecer botón
                                         }
                                     })
                                     .addOnFailureListener(e -> {
                                         Toast.makeText(LoginActivity.this, "Error al verificar el rol", Toast.LENGTH_SHORT).show();
+                                        resetLoginButton(); // Restablecer botón
                                     });
                         }
                     } else {
                         Toast.makeText(LoginActivity.this, "Error al iniciar sesión: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        resetLoginButton(); // Restablecer botón
                     }
                 });
+    }
+
+    private void resetLoginButton() {
+        loginButton.setText("Iniciar sesión");
+        loginButton.setBackgroundResource(R.drawable.custom_button);
+    }
+
+    private void animateButtonBackgroundColor() {
+        ObjectAnimator colorAnimation = ObjectAnimator.ofObject(
+                loginButton,
+                "backgroundColor",
+                new ArgbEvaluator(),
+                getResources().getColor(R.color.purple_200),
+                getResources().getColor(R.color.teal_700)
+        );
+        colorAnimation.setDuration(2000);
+        colorAnimation.start();
+    }
+
+
+    private void animateButtonText() {
+        TranslateAnimation animation = new TranslateAnimation(-50, 0, 0, 0);
+        animation.setInterpolator(new AccelerateDecelerateInterpolator());
+        animation.setDuration(2000);
+        loginButton.getText(); // Aplica la animación únicamente al texto
     }
 
     private void saveEmailToSharedPreferences(String email) {
@@ -124,18 +181,26 @@ public class LoginActivity extends AppCompatActivity {
 
     private void loadSavedEmails() {
         Set<String> savedEmails = sharedPreferences.getStringSet(PREF_EMAILS_KEY, new HashSet<>());
-
-        // Configurar el adaptador para el autocompletado
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, savedEmails.toArray(new String[0]));
         emailEditText.setAdapter(adapter);
-
-        // Habilitar el menú desplegable al hacer clic en el campo
         emailEditText.setThreshold(1);
+    }
+
+    private void togglePasswordVisibility() {
+        if (isPasswordVisible) {
+            passwordEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            passwordEditText.setSelection(passwordEditText.getText().length());
+            viewPasswordButton.setImageResource(R.drawable.ic_eye_closed);
+        } else {
+            passwordEditText.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+            passwordEditText.setSelection(passwordEditText.getText().length());
+            viewPasswordButton.setImageResource(R.drawable.ic_eye_open);
+        }
+        isPasswordVisible = !isPasswordVisible;
     }
 
     @Override
     public void onBackPressed() {
-        // Regresar al MainActivity al presionar el botón físico "Atrás"
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(intent);
         finish();
