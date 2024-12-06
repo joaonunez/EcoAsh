@@ -17,6 +17,10 @@
     <color name="ecoash_button_background">#7C4DFF</color>
     <color name="ecoash_button_text">#FFFFFF</color>
     <color name="ecoash_button_border">#5E35B1</color>
+    <color name="background_color">#F5F5F5</color>
+    <color name="text_color">#212121</color>
+    <color name="icon_color">#757575</color>
+    <color name="hint_color">#9E9E9E</color>
 
 
 </resources>

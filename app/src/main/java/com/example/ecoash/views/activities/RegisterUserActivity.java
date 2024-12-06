@@ -3,29 +3,28 @@ package com.example.ecoash.views.activities;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.RadioGroup;
+import android.widget.RadioButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.ecoash.R;
+import com.example.ecoash.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 
 public class RegisterUserActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private EditText txtName, txtEmail, txtPassword, txtAddress, txtBirthday;
-    private Spinner spinnerGender;
+    private RadioGroup radioGroupGender;
     private Button btnRegister, btnBack;
 
     @Override
@@ -41,18 +40,9 @@ public class RegisterUserActivity extends AppCompatActivity {
         txtPassword = findViewById(R.id.txtPassword);
         txtAddress = findViewById(R.id.txtAddress);
         txtBirthday = findViewById(R.id.txtBirthday);
-        spinnerGender = findViewById(R.id.spinnerGender);
+        radioGroupGender = findViewById(R.id.radioGroupGender);
         btnRegister = findViewById(R.id.btnRegister);
         btnBack = findViewById(R.id.btnBack);
-
-        // Configurar opciones de género
-        ArrayAdapter<CharSequence> genderAdapter = ArrayAdapter.createFromResource(
-                this,
-                R.array.gender_options,
-                android.R.layout.simple_spinner_item
-        );
-        genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerGender.setAdapter(genderAdapter);
 
         // Configurar selector de fecha
         txtBirthday.setOnClickListener(v -> showDatePicker());
@@ -63,14 +53,42 @@ public class RegisterUserActivity extends AppCompatActivity {
             String email = txtEmail.getText().toString().trim();
             String password = txtPassword.getText().toString().trim();
             String address = txtAddress.getText().toString().trim();
-            String gender = spinnerGender.getSelectedItem().toString();
             String birthday = txtBirthday.getText().toString().trim();
 
-            if (name.isEmpty() || email.isEmpty() || password.isEmpty() || address.isEmpty() || birthday.isEmpty()) {
-                Toast.makeText(RegisterUserActivity.this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
+            int selectedGenderId = radioGroupGender.getCheckedRadioButtonId();
+            String gender;
+
+            if (selectedGenderId != -1) {
+                RadioButton selectedRadioButton = findViewById(selectedGenderId);
+                gender = selectedRadioButton.getText().toString();
+            } else {
+                Toast.makeText(this, "Seleccione un género", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            // Validación de campos
+            if (name.isEmpty()) {
+                Toast.makeText(this, "El campo nombre está vacío", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (email.isEmpty()) {
+                Toast.makeText(this, "El campo correo está vacío", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (password.isEmpty()) {
+                Toast.makeText(this, "El campo contraseña está vacío", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (address.isEmpty()) {
+                Toast.makeText(this, "El campo dirección está vacío", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (birthday.isEmpty()) {
+                Toast.makeText(this, "El campo fecha de nacimiento está vacío", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Registro del usuario
             registerUser(name, email, password, address, gender, birthday);
         });
 
@@ -103,16 +121,20 @@ public class RegisterUserActivity extends AppCompatActivity {
                         if (currentUser != null) {
                             FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-                            // Crear datos del usuario con el rol por defecto "cliente"
-                            Map<String, Object> userData = new HashMap<>();
-                            userData.put("name", name);
-                            userData.put("email", email);
-                            userData.put("address", address);
-                            userData.put("gender", gender);
-                            userData.put("birthday", birthday);
-                            userData.put("role", "cliente"); // Rol por defecto
+                            // Crear instancia de User
+                            User newUser = new User(
+                                    currentUser.getUid(),
+                                    name,
+                                    email,
+                                    address,
+                                    gender,
+                                    birthday,
+                                    "cliente", // Rol por defecto
+                                    null // Sin foto de perfil inicialmente
+                            );
 
-                            db.collection("users").document(currentUser.getUid()).set(userData)
+                            // Guardar datos del usuario en Firestore
+                            db.collection("users").document(currentUser.getUid()).set(newUser)
                                     .addOnSuccessListener(aVoid -> {
                                         Toast.makeText(RegisterUserActivity.this, "Usuario registrado exitosamente", Toast.LENGTH_SHORT).show();
                                         Intent intent = new Intent(RegisterUserActivity.this, LoginActivity.class);

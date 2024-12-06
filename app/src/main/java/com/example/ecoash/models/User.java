@@ -1,6 +1,6 @@
 package com.example.ecoash.models;
 
-public class SensorData {
+public class User {
     private String id;
     private String name;
     private String email;
@@ -10,11 +10,11 @@ public class SensorData {
     private String role;
     private String profilePictureUrl; // Campo opcional para la URL de la foto de perfil
 
-    public SensorData() {
+    public User() {
         // Constructor vacío para Firebase
     }
 
-    public SensorData(String id, String name, String email, String address, String gender, String dateOfBirth, String role, String profilePictureUrl) {
+    public User(String id, String name, String email, String address, String gender, String dateOfBirth, String role, String profilePictureUrl) {
         this.id = id;
         this.name = name;
         this.email = email;
