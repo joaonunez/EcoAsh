@@ -5,8 +5,7 @@ public class User {
     private String name;
     private String email;
     private String address;
-    private String gender;
-    private String dateOfBirth; // Cambiado de birthday a dateOfBirth
+    private String phone;
     private String role;
     private String profilePictureUrl; // Campo opcional para la URL de la foto de perfil
 
@@ -14,13 +13,12 @@ public class User {
         // Constructor vacío para Firebase
     }
 
-    public User(String id, String name, String email, String address, String gender, String dateOfBirth, String role, String profilePictureUrl) {
+    public User(String id, String name, String email, String address, String phone, String role, String profilePictureUrl) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.address = address;
-        this.gender = gender;
-        this.dateOfBirth = dateOfBirth;
+        this.phone = phone;
         this.role = role;
         this.profilePictureUrl = profilePictureUrl; // Inicialización del campo opcional
     }
@@ -58,20 +56,12 @@ public class User {
         this.address = address;
     }
 
-    public String getGender() {
-        return gender;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public String getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public void setDateOfBirth(String dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getRole() {
@@ -97,8 +87,7 @@ public class User {
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", address='" + address + '\'' +
-                ", gender='" + gender + '\'' +
-                ", dateOfBirth='" + dateOfBirth + '\'' +
+                ", phone='" + phone + '\'' +
                 ", role='" + role + '\'' +
                 ", profilePictureUrl='" + profilePictureUrl + '\'' +
                 '}';

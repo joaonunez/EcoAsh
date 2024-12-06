@@ -33,8 +33,7 @@ public class ClientPersonalDataFragment extends Fragment {
         TextView txtName = view.findViewById(R.id.txtName);
         TextView txtEmail = view.findViewById(R.id.txtEmail);
         TextView txtAddress = view.findViewById(R.id.txtAddress);
-        TextView txtBirthday = view.findViewById(R.id.txtBirthday);
-        TextView txtGender = view.findViewById(R.id.txtGender);
+        TextView txtPhone = view.findViewById(R.id.txtPhone); // Nueva referencia para el teléfono
         Button btnLogout = view.findViewById(R.id.btnLogout);
 
         // Cargar datos del usuario
@@ -47,8 +46,7 @@ public class ClientPersonalDataFragment extends Fragment {
                         txtName.setText("Nombre: " + documentSnapshot.getString("name"));
                         txtEmail.setText("Correo: " + documentSnapshot.getString("email"));
                         txtAddress.setText("Dirección: " + documentSnapshot.getString("address"));
-                        txtBirthday.setText("Cumpleaños: " + documentSnapshot.getString("birthday"));
-                        txtGender.setText("Género: " + documentSnapshot.getString("gender"));
+                        txtPhone.setText("Teléfono: +56 " + documentSnapshot.getString("phone")); // Mostrar teléfono con prefijo
                     }
                 })
                 .addOnFailureListener(e -> Toast.makeText(getContext(), "Error al cargar los datos", Toast.LENGTH_SHORT).show());

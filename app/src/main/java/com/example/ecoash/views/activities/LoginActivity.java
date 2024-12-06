@@ -140,7 +140,8 @@ public class LoginActivity extends AppCompatActivity {
                                     });
                         }
                     } else {
-                        Toast.makeText(LoginActivity.this, "Error al iniciar sesión: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        // Mostrar un toast indicando que el usuario no existe
+                        Toast.makeText(LoginActivity.this, "Usuario no existe o credenciales incorrectas", Toast.LENGTH_SHORT).show();
                         resetLoginButton(); // Restablecer botón
                     }
                 });
@@ -162,7 +163,6 @@ public class LoginActivity extends AppCompatActivity {
         colorAnimation.setDuration(2000);
         colorAnimation.start();
     }
-
 
     private void animateButtonText() {
         TranslateAnimation animation = new TranslateAnimation(-50, 0, 0, 0);

@@ -52,21 +52,12 @@
                     android:textSize="16sp"
                     android:layout_marginBottom="8dp" />
 
-                <!-- Cumpleaños -->
+                <!-- Teléfono -->
                 <TextView
-                    android:id="@+id/txtBirthday"
+                    android:id="@+id/txtPhone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Cumpleaños:"
-                    android:textSize="16sp"
-                    android:layout_marginBottom="8dp" />
-
-                <!-- Género -->
-                <TextView
-                    android:id="@+id/txtGender"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Género:"
+                    android:text="Teléfono:"
                     android:textSize="16sp"
                     android:layout_marginBottom="8dp" />
 

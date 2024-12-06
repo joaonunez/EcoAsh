@@ -57,6 +57,38 @@
                 android:background="@null" />
         </LinearLayout>
 
+        <!-- Campo Teléfono -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="8dp"
+            android:layout_marginTop="8dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/phone" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="+56"
+                android:textSize="16sp"
+                android:gravity="center_vertical" />
+
+            <EditText
+                android:id="@+id/txtPhone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:hint="Número de Teléfono"
+                android:inputType="phone"
+                android:background="@null" />
+        </LinearLayout>
+
         <!-- Campo Contraseña -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -102,60 +134,6 @@
                 android:layout_marginStart="8dp"
                 android:hint="Dirección"
                 android:inputType="textPostalAddress"
-                android:background="@null" />
-        </LinearLayout>
-
-        <!-- Selección de Género -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Género"
-            android:layout_marginTop="16dp" />
-
-        <RadioGroup
-            android:id="@+id/radioGroupGender"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="8dp"
-            android:layout_marginTop="8dp">
-
-            <RadioButton
-                android:id="@+id/radioButtonGirl"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Femenino" />
-
-            <RadioButton
-                android:id="@+id/radioButtonMan"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Masculino" />
-        </RadioGroup>
-
-        <!-- Campo Fecha de Nacimiento -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="8dp"
-            android:layout_marginTop="16dp">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/born" />
-
-            <EditText
-                android:id="@+id/txtBirthday"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:hint="Fecha de Nacimiento"
-                android:focusable="false"
-                android:inputType="none"
                 android:background="@null" />
         </LinearLayout>
 
