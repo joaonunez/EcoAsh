@@ -1,6 +1,12 @@
 package com.example.ecoash.views.activities;
 
+
 import android.os.Bundle;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
@@ -81,6 +87,21 @@ public class ClientHomeActivity extends AppCompatActivity {
         unreadNotifications++;
         badgeDrawable.setNumber(unreadNotifications);
         badgeDrawable.setVisible(true);
+
+        // Mostrar toast con icono y texto personalizado
+        showAlertToast();
+    }
+
+    // Método para mostrar el toast personalizado
+    private void showAlertToast() {
+        LayoutInflater inflater = getLayoutInflater();
+        View layout = inflater.inflate(R.layout.toast_notification, null);
+
+        Toast toast = new Toast(getApplicationContext());
+        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.setView(layout);
+        toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 100);
+        toast.show();
     }
 
     // Método para reiniciar el badge al entrar en la vista de alertas

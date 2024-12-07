@@ -4,6 +4,16 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <!-- Botón para eliminar todas las alertas -->
+    <Button
+        android:id="@+id/deleteAllAlertsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Eliminar todas las alertas"
+        android:layout_gravity="end"
+        android:padding="8dp"
+        android:visibility="gone" />
+
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"

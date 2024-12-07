@@ -10,16 +10,33 @@
     android:elevation="4dp"
     android:layout_margin="8dp">
 
-    <!-- Título de la alerta -->
-    <TextView
-        android:id="@+id/alertTitle"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Título de la Alerta"
-        android:textStyle="bold"
-        android:textSize="18sp"
-        android:textColor="@android:color/black"
-        android:paddingBottom="8dp" />
+        android:orientation="horizontal">
+
+        <!-- Título de la alerta -->
+        <TextView
+            android:id="@+id/alertTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Título de la Alerta"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"
+            android:paddingBottom="8dp" />
+
+        <!-- Botón X para eliminar la alerta individual -->
+        <ImageButton
+            android:id="@+id/deleteAlertButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_delete"
+            android:contentDescription="Eliminar alerta"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:tint="@android:color/black"/>
+    </LinearLayout>
 
     <!-- Mensaje de la alerta -->
     <TextView
@@ -31,7 +48,7 @@
         android:textColor="@android:color/black"
         android:paddingBottom="8dp" />
 
-    <!-- Contenedor para fondo dinámico -->
+    <!-- Contenedor para fondo dinámico según el color -->
     <LinearLayout
         android:id="@+id/alertBackground"
         android:layout_width="match_parent"

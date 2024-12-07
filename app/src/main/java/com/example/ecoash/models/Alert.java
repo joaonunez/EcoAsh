@@ -4,7 +4,8 @@ public class Alert {
     private String fecha;
     private String mensaje;
     private String titulo;
-    private String color; // Nuevo atributo
+    private String color;
+    private String key; // Clave de la alerta en Firebase
 
     public Alert() {
         // Constructor vacío para Firebase
@@ -14,7 +15,7 @@ public class Alert {
         this.fecha = fecha;
         this.mensaje = mensaje;
         this.titulo = titulo;
-        this.color = color; // Asignar el valor del color
+        this.color = color;
     }
 
     // Getters y Setters
@@ -50,6 +51,14 @@ public class Alert {
         this.color = color;
     }
 
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
     @Override
     public String toString() {
         return "Alert{" +
@@ -57,6 +66,7 @@ public class Alert {
                 ", mensaje='" + mensaje + '\'' +
                 ", titulo='" + titulo + '\'' +
                 ", color='" + color + '\'' +
+                ", key='" + key + '\'' +
                 '}';
     }
 }

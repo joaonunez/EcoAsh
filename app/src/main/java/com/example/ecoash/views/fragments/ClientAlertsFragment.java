@@ -1,10 +1,12 @@
 package com.example.ecoash.views.fragments;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,6 +41,7 @@ public class ClientAlertsFragment extends Fragment {
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private TextView emptyView;
+    private Button deleteAllAlertsButton;
     private AlertsAdapter alertsAdapter;
     private DatabaseReference realtimeDatabase;
     private List<Alert> alerts;
@@ -54,9 +57,11 @@ public class ClientAlertsFragment extends Fragment {
         recyclerView = view.findViewById(R.id.alertsRecyclerView);
         progressBar = view.findViewById(R.id.progressBar);
         emptyView = view.findViewById(R.id.emptyView);
+        deleteAllAlertsButton = view.findViewById(R.id.deleteAllAlertsButton);
 
         alerts = new ArrayList<>();
         alertsAdapter = new AlertsAdapter(requireContext(), alerts);
+        alertsAdapter.setOnAlertDeleteListener(this::onDeleteAlertClicked);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(alertsAdapter);
@@ -64,13 +69,24 @@ public class ClientAlertsFragment extends Fragment {
         realtimeDatabase = FirebaseDatabase.getInstance().getReference("dispositivos");
         auth = FirebaseAuth.getInstance();
 
+        deleteAllAlertsButton.setOnClickListener(v -> confirmDeleteAllAlerts());
+
         loadDeviceIdAndAlerts();
 
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Cada vez que volvamos a la vista de alertas, asegurarnos de mostrar la lista desde arriba.
+        if (!alerts.isEmpty()) {
+            recyclerView.scrollToPosition(0);
+        }
+    }
+
     private void loadDeviceIdAndAlerts() {
-        String userEmail = auth.getCurrentUser().getEmail();
+        String userEmail = auth.getCurrentUser() != null ? auth.getCurrentUser().getEmail() : null;
         if (userEmail == null) {
             Log.e(TAG, "Usuario no logueado o email no disponible");
             Toast.makeText(getContext(), "Error: No se puede obtener el email del usuario", Toast.LENGTH_SHORT).show();
@@ -99,6 +115,7 @@ public class ClientAlertsFragment extends Fragment {
                     progressBar.setVisibility(View.GONE);
                     Toast.makeText(getContext(), "No se encontraron dispositivos asociados", Toast.LENGTH_SHORT).show();
                     emptyView.setVisibility(View.VISIBLE);
+                    deleteAllAlertsButton.setVisibility(View.GONE);
                 }
             }
 
@@ -120,7 +137,7 @@ public class ClientAlertsFragment extends Fragment {
         alertsRef.addChildEventListener(childEventListener);
 
         progressBar.setVisibility(View.GONE);
-        emptyView.setVisibility(alerts.isEmpty() ? View.VISIBLE : View.GONE);
+        refreshEmptyViewAndButtonVisibility();
     }
 
     private ChildEventListener childEventListener = new ChildEventListener() {
@@ -135,13 +152,15 @@ public class ClientAlertsFragment extends Fragment {
                             alertMap.get("titulo"),
                             alertMap.get("color")
                     );
+                    // Guardamos la key de la alerta para poder eliminarla
+                    newAlert.setKey(snapshot.getKey());
 
                     // Insertar la nueva alerta en orden descendente por fecha
                     int insertPosition = findInsertPosition(newAlert);
                     alerts.add(insertPosition, newAlert);
                     alertsAdapter.notifyItemInserted(insertPosition);
 
-                    emptyView.setVisibility(alerts.isEmpty() ? View.VISIBLE : View.GONE);
+                    refreshEmptyViewAndButtonVisibility();
 
                     // Si el fragmento está visible y la alerta se insertó al inicio,
                     // desplazamos el RecyclerView hacia arriba.
@@ -161,12 +180,21 @@ public class ClientAlertsFragment extends Fragment {
 
         @Override
         public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-            // Lógica para eliminación de una alerta (opcional)
+            // Alerta eliminada
+            String keyRemoved = snapshot.getKey();
+            if (keyRemoved != null) {
+                int indexToRemove = findAlertIndexByKey(keyRemoved);
+                if (indexToRemove != -1) {
+                    alerts.remove(indexToRemove);
+                    alertsAdapter.notifyItemRemoved(indexToRemove);
+                    refreshEmptyViewAndButtonVisibility();
+                }
+            }
         }
 
         @Override
         public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            // Lógica para reordenamiento de alertas (no requerido actualmente)
+            // No requerido en este momento
         }
 
         @Override
@@ -174,6 +202,15 @@ public class ClientAlertsFragment extends Fragment {
             Log.e(TAG, "Error al escuchar alertas: " + error.getMessage());
         }
     };
+
+    private int findAlertIndexByKey(String key) {
+        for (int i = 0; i < alerts.size(); i++) {
+            if (alerts.get(i).getKey().equals(key)) {
+                return i;
+            }
+        }
+        return -1;
+    }
 
     /**
      * Encuentra la posición donde insertar la nueva alerta para mantener el orden por fecha (descendente).
@@ -208,5 +245,46 @@ public class ClientAlertsFragment extends Fragment {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private void refreshEmptyViewAndButtonVisibility() {
+        emptyView.setVisibility(alerts.isEmpty() ? View.VISIBLE : View.GONE);
+        deleteAllAlertsButton.setVisibility(alerts.isEmpty() ? View.GONE : View.VISIBLE);
+    }
+
+    // Lógica para eliminar una alerta individual
+    private void onDeleteAlertClicked(Alert alert, int position) {
+        new AlertDialog.Builder(getContext())
+                .setTitle("Eliminar alerta")
+                .setMessage("¿Desea eliminar esta alerta?")
+                .setPositiveButton("Sí", (dialog, which) -> {
+                    if (alertsRef != null && alert.getKey() != null) {
+                        alertsRef.child(alert.getKey()).removeValue().addOnSuccessListener(aVoid -> {
+                            Toast.makeText(getContext(), "Alerta eliminada", Toast.LENGTH_SHORT).show();
+                        }).addOnFailureListener(e -> {
+                            Toast.makeText(getContext(), "Error al eliminar alerta", Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                })
+                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    // Lógica para eliminar todas las alertas
+    private void confirmDeleteAllAlerts() {
+        new AlertDialog.Builder(getContext())
+                .setTitle("Eliminar todas las alertas")
+                .setMessage("¿Está seguro de que desea eliminar todas las alertas?")
+                .setPositiveButton("Sí", (dialog, which) -> {
+                    if (alertsRef != null) {
+                        alertsRef.removeValue().addOnSuccessListener(aVoid -> {
+                            Toast.makeText(getContext(), "Todas las alertas fueron eliminadas", Toast.LENGTH_SHORT).show();
+                        }).addOnFailureListener(e -> {
+                            Toast.makeText(getContext(), "Error al eliminar las alertas", Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                })
+                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                .show();
     }
 }
