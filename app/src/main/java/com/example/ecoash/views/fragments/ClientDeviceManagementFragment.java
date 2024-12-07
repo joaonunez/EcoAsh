@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ecoash.R;
-import com.example.ecoash.adapters.ClientDeviceAdapter;
+import com.example.ecoash.adapters.DeviceAdapter;
 import com.example.ecoash.models.Device;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -30,11 +30,11 @@ import java.util.List;
 
 public class ClientDeviceManagementFragment extends Fragment {
 
-    private static final String TAG = "ClientDeviceMgmt"; // Etiqueta para logs
+    private static final String TAG = "ClientDeviceMgmt";
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private TextView emptyView;
-    private ClientDeviceAdapter deviceAdapter;
+    private DeviceAdapter deviceAdapter;
     private FirebaseAuth auth;
     private DatabaseReference realtimeDatabase;
     private List<Device> devices;
@@ -52,7 +52,8 @@ public class ClientDeviceManagementFragment extends Fragment {
         emptyView = view.findViewById(R.id.emptyView);
 
         devices = new ArrayList<>();
-        deviceAdapter = new ClientDeviceAdapter(requireContext(), devices);
+        // Ahora se usa DeviceAdapter con isAdmin = false y sin onDeleteListener
+        deviceAdapter = new DeviceAdapter(getContext(), devices, false, null);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(deviceAdapter);

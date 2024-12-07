@@ -86,36 +86,34 @@ public class AdminDeviceCreationFragment extends Fragment {
         String assignedEmail = userEmail.isEmpty() ? "Sin asignar" : userEmail;
         String dateOfCreation = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
 
-        // Crear el JSON de alertas inicial
-        String alertId = UUID.randomUUID().toString(); // Generar ID único para la alerta
-        HashMap<String, Object> alertData = new HashMap<>();
-        alertData.put("titulo", "Este es un ejemplo de aviso");
-        alertData.put("mensaje", "Así podrás recibir alertas de los cambios en tu dispositivo");
-        alertData.put("fecha", dateOfCreation);
-
-        HashMap<String, Object> alertsMap = new HashMap<>();
-        alertsMap.put(alertId, alertData);
-
-        // Crear el mapa de datos del dispositivo
+        // Crear la estructura de datos del dispositivo
         HashMap<String, Object> deviceData = new HashMap<>();
         deviceData.put("name", deviceName);
         deviceData.put("userEmail", assignedEmail);
         deviceData.put("dateOfCreation", dateOfCreation);
-        deviceData.put("PM2_5", 0.0);
-        deviceData.put("PM10", 0.0);
-        deviceData.put("CO2", 0.0);
-        deviceData.put("CO", 0.0);
-        deviceData.put("humedad", 0.0);
-        deviceData.put("temperatura", 0.0);
-        deviceData.put("alertas", alertsMap); // Añadimos la alerta inicial aquí
+        deviceData.put("CO", 0);
+        deviceData.put("CO2", 0);
+        deviceData.put("PM10", 0);
+        deviceData.put("PM2_5", 0);
+        deviceData.put("humedad", 0);
+        deviceData.put("temperatura", 0);
 
-        // Subir a Firebase Realtime Database
+        // Crear la sección lastValues con solo las unidades de medición
+        HashMap<String, Object> lastValues = new HashMap<>();
+        lastValues.put("CO", 0);
+        lastValues.put("CO2", 0);
+        lastValues.put("PM10", 0);
+        lastValues.put("PM2_5", 0);
+        lastValues.put("humedad", 0);
+        lastValues.put("temperatura", 0);
+
+        deviceData.put("lastValues", lastValues);
+
         realtimeDatabase.push().setValue(deviceData)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(requireContext(), "Dispositivo registrado con éxito", Toast.LENGTH_SHORT).show();
                     deviceNameInput.setText("");
                     userEmailInput.setText("");
                 })
-                .addOnFailureListener(e -> Toast.makeText(requireContext(), "Error al registrar el dispositivo: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> Toast.makeText(requireContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 }

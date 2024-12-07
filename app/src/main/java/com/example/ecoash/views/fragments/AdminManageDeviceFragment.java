@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ecoash.R;
-import com.example.ecoash.adapters.AdminDeviceAdapter;
+import com.example.ecoash.adapters.DeviceAdapter;
 import com.example.ecoash.models.Device;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -33,7 +33,7 @@ public class AdminManageDeviceFragment extends Fragment {
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private TextView emptyView;
-    private AdminDeviceAdapter deviceAdapter;
+    private DeviceAdapter deviceAdapter;
     private DatabaseReference realtimeDatabase;
     private List<Device> devices;
 
@@ -48,7 +48,8 @@ public class AdminManageDeviceFragment extends Fragment {
         emptyView = view.findViewById(R.id.emptyView);
 
         devices = new ArrayList<>();
-        deviceAdapter = new AdminDeviceAdapter(devices, device -> deleteDevice(device.getId()));
+        // Se mantiene la funcionalidad de eliminar dispositivos con el listener onDelete
+        deviceAdapter = new DeviceAdapter(getContext(), devices, true, device -> deleteDevice(device.getId()));
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(deviceAdapter);
@@ -69,7 +70,7 @@ public class AdminManageDeviceFragment extends Fragment {
                     Device device = deviceSnapshot.getValue(Device.class);
                     if (device != null) {
                         device.setId(deviceSnapshot.getKey());
-                        devices.add(device); // Orden de Firebase respetado
+                        devices.add(device);
                     }
                 }
                 progressBar.setVisibility(View.GONE);

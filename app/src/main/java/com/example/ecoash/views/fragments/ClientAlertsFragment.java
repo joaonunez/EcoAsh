@@ -19,11 +19,11 @@ import com.example.ecoash.R;
 import com.example.ecoash.adapters.AlertsAdapter;
 import com.example.ecoash.models.Alert;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -44,6 +44,7 @@ public class ClientAlertsFragment extends Fragment {
     private List<Alert> alerts;
 
     private FirebaseAuth auth;
+    private DatabaseReference alertsRef; // Referencia a las alertas del dispositivo actual
 
     @Nullable
     @Override
@@ -78,7 +79,8 @@ public class ClientAlertsFragment extends Fragment {
 
         progressBar.setVisibility(View.VISIBLE);
 
-        realtimeDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+        // Obtenemos el deviceId una sola vez
+        realtimeDatabase.addListenerForSingleValueEvent(new com.google.firebase.database.ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String deviceId = null;
@@ -96,6 +98,7 @@ public class ClientAlertsFragment extends Fragment {
                 } else {
                     progressBar.setVisibility(View.GONE);
                     Toast.makeText(getContext(), "No se encontraron dispositivos asociados", Toast.LENGTH_SHORT).show();
+                    emptyView.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -108,51 +111,100 @@ public class ClientAlertsFragment extends Fragment {
     }
 
     private void loadAlerts(String deviceId) {
-        realtimeDatabase.child(deviceId).child("alertas").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                alerts.clear();
+        alertsRef = realtimeDatabase.child(deviceId).child("alertas");
 
-                if (snapshot.exists()) {
-                    for (DataSnapshot alertSnapshot : snapshot.getChildren()) {
-                        try {
-                            HashMap<String, String> alertMap = (HashMap<String, String>) alertSnapshot.getValue();
-                            if (alertMap != null) {
-                                Alert alert = new Alert(
-                                        alertMap.get("fecha"),
-                                        alertMap.get("mensaje"),
-                                        alertMap.get("titulo"),
-                                        alertMap.get("color")
-                                );
-                                alerts.add(alert);
-                            }
-                        } catch (Exception e) {
-                            Log.e(TAG, "Error al procesar la alerta: " + e.getMessage(), e);
-                        }
-                    }
+        // Removemos cualquier listener previo
+        alertsRef.removeEventListener(childEventListener);
 
-                    alerts.sort((alert1, alert2) -> {
-                        try {
-                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-                            Date date1 = dateFormat.parse(alert1.getFecha());
-                            Date date2 = dateFormat.parse(alert2.getFecha());
-                            return date2.compareTo(date1); // Orden descendente
-                        } catch (Exception e) {
-                            return 0;
-                        }
-                    });
+        // Agregamos un ChildEventListener para manejar alertas una a una
+        alertsRef.addChildEventListener(childEventListener);
+
+        // Como acabamos de agregar el listener, asumimos que no sabemos si hay alertas.
+        // Podríamos hacer una consulta inicial para saber si mostrar o no la vista vacía,
+        // pero en cuanto aparezca la primera alerta, se actualizará.
+        progressBar.setVisibility(View.GONE);
+        emptyView.setVisibility(alerts.isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+    private ChildEventListener childEventListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            try {
+                HashMap<String, String> alertMap = (HashMap<String, String>) snapshot.getValue();
+                if (alertMap != null) {
+                    Alert newAlert = new Alert(
+                            alertMap.get("fecha"),
+                            alertMap.get("mensaje"),
+                            alertMap.get("titulo"),
+                            alertMap.get("color")
+                    );
+
+                    // Insertar la nueva alerta en orden descendente por fecha
+                    int insertPosition = findInsertPosition(newAlert);
+                    alerts.add(insertPosition, newAlert);
+                    alertsAdapter.notifyItemInserted(insertPosition);
+
+                    emptyView.setVisibility(alerts.isEmpty() ? View.VISIBLE : View.GONE);
                 }
-
-                progressBar.setVisibility(View.GONE);
-                alertsAdapter.notifyDataSetChanged();
-                emptyView.setVisibility(alerts.isEmpty() ? View.VISIBLE : View.GONE);
+            } catch (Exception e) {
+                Log.e(TAG, "Error al procesar la alerta: " + e.getMessage(), e);
             }
+        }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                progressBar.setVisibility(View.GONE);
-                Toast.makeText(getContext(), "Error al cargar alertas", Toast.LENGTH_SHORT).show();
+        @Override
+        public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            // Si las alertas se modifican, podríamos manejarlo aquí
+            // En este caso, asumimos que las alertas no se modifican, solo se agregan.
+        }
+
+        @Override
+        public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+            // Manejo si se elimina una alerta (no es obligatorio si no se necesita)
+        }
+
+        @Override
+        public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            // No se requiere por ahora.
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError error) {
+            Log.e(TAG, "Error al escuchar alertas: " + error.getMessage());
+        }
+    };
+
+    /**
+     * Encuentra la posición donde insertar la nueva alerta para mantener el orden por fecha (descendente).
+     * Las alertas más recientes van al principio.
+     */
+    private int findInsertPosition(Alert newAlert) {
+        Date newAlertDate = parseDate(newAlert.getFecha());
+        if (newAlertDate == null) {
+            // Si no se puede parsear la fecha, la ponemos al final
+            return alerts.size();
+        }
+
+        for (int i = 0; i < alerts.size(); i++) {
+            Alert existingAlert = alerts.get(i);
+            Date existingDate = parseDate(existingAlert.getFecha());
+            if (existingDate != null) {
+                // Queremos orden descendente, así que si la nueva es más reciente, va antes
+                if (newAlertDate.after(existingDate)) {
+                    return i;
+                }
             }
-        });
+        }
+
+        // Si no es más reciente que ninguna, va al final
+        return alerts.size();
+    }
+
+    private Date parseDate(String dateString) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            return dateFormat.parse(dateString);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

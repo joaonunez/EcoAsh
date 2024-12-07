@@ -41,7 +41,6 @@ public class DeviceRepository {
                         String deviceId = deviceSnapshot.getKey();
                         Log.d(TAG, "Dispositivo encontrado para el usuario: " + deviceId);
 
-                        // Escuchar cambios en todas las métricas del dispositivo
                         monitorMetrics(deviceId, callback);
                     }
                 } else {
@@ -58,47 +57,45 @@ public class DeviceRepository {
 
     private static void monitorMetrics(String deviceId, AlertCallback callback) {
         DatabaseReference deviceRef = devicesRef.child(deviceId);
-        DatabaseReference lastValuesRef = deviceRef.child("lastValues");
 
-        // Monitorear cada métrica con umbrales y colores
-        monitorMetricWithThresholdAndLevels(deviceId, deviceRef.child("temperatura"), lastValuesRef.child("temperatura"),
+        monitorMetricWithThresholdAndLevels(deviceId, deviceRef.child("temperatura"),
                 "Temperatura", "°C", 5.0,
                 30.0, "Temperatura elevada", "rojo",
                 5.0, "Temperatura baja", "azul",
                 "Temperatura en rango normal", "verde", callback);
 
-        monitorMetricWithThresholdAndLevels(deviceId, deviceRef.child("CO"), lastValuesRef.child("CO"),
+        monitorMetricWithThresholdAndLevels(deviceId, deviceRef.child("CO"),
                 "CO (Monóxido de Carbono)", "ppm", 5.0,
                 9.0, "Niveles altos de CO", "rojo",
                 0.0, "CO en niveles bajos", "azul",
                 "CO en niveles normales", "verde", callback);
 
-        monitorMetricWithThresholdAndLevels(deviceId, deviceRef.child("CO2"), lastValuesRef.child("CO2"),
+        monitorMetricWithThresholdAndLevels(deviceId, deviceRef.child("CO2"),
                 "CO2 (Dióxido de Carbono)", "ppm", 50.0,
                 1000.0, "CO2 elevado", "rojo",
                 400.0, "CO2 en niveles bajos", "azul",
                 "CO2 en niveles normales", "verde", callback);
 
-        monitorMetricWithThresholdAndLevels(deviceId, deviceRef.child("PM2_5"), lastValuesRef.child("PM2_5"),
+        monitorMetricWithThresholdAndLevels(deviceId, deviceRef.child("PM2_5"),
                 "PM2.5 (Partículas finas)", "µg/m³", 5.0,
                 35.0, "Partículas finas altas", "rojo",
                 0.0, "Partículas finas bajas", "azul",
                 "Partículas finas normales", "verde", callback);
 
-        monitorMetricWithThresholdAndLevels(deviceId, deviceRef.child("PM10"), lastValuesRef.child("PM10"),
+        monitorMetricWithThresholdAndLevels(deviceId, deviceRef.child("PM10"),
                 "PM10 (Partículas gruesas)", "µg/m³", 10.0,
                 50.0, "Partículas gruesas altas", "rojo",
                 0.0, "Partículas gruesas bajas", "azul",
                 "Partículas gruesas normales", "verde", callback);
 
-        monitorMetricWithThresholdAndLevels(deviceId, deviceRef.child("humedad"), lastValuesRef.child("humedad"),
+        monitorMetricWithThresholdAndLevels(deviceId, deviceRef.child("humedad"),
                 "Humedad", "%", 10.0,
                 70.0, "Humedad alta", "rojo",
                 30.0, "Humedad baja", "azul",
                 "Humedad en niveles normales", "verde", callback);
     }
 
-    private static void monitorMetricWithThresholdAndLevels(String deviceId, DatabaseReference metricRef, DatabaseReference lastValueRef,
+    private static void monitorMetricWithThresholdAndLevels(String deviceId, DatabaseReference metricRef,
                                                             String metricName, String unit, double threshold,
                                                             double highThreshold, String highMessage, String highColor,
                                                             double lowThreshold, String lowMessage, String lowColor,
@@ -112,46 +109,27 @@ public class DeviceRepository {
                     return;
                 }
 
-                lastValueRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot lastValueSnapshot) {
-                        Double lastValue = lastValueSnapshot.getValue(Double.class);
+                // Determinar nivel de alerta
+                String mensaje;
+                String titulo;
+                String color;
 
-                        if (lastValue == null || Math.abs(currentValue - lastValue) >= threshold) {
-                            Log.d(TAG, metricName + " ha cambiado significativamente: " + currentValue);
+                if (currentValue > highThreshold) {
+                    mensaje = highMessage + ": " + currentValue + " " + unit;
+                    titulo = metricName + " alta";
+                    color = highColor;
+                } else if (currentValue < lowThreshold) {
+                    mensaje = lowMessage + ": " + currentValue + " " + unit;
+                    titulo = metricName + " baja";
+                    color = lowColor;
+                } else {
+                    mensaje = normalMessage + ": " + currentValue + " " + unit;
+                    titulo = metricName + " estable";
+                    color = normalColor;
+                }
 
-                            // Determinar nivel de alerta
-                            String mensaje;
-                            String titulo;
-                            String color;
-
-                            if (currentValue > highThreshold) {
-                                mensaje = highMessage + ": " + currentValue + " " + unit;
-                                titulo = metricName + " alta";
-                                color = highColor;
-                            } else if (currentValue < lowThreshold) {
-                                mensaje = lowMessage + ": " + currentValue + " " + unit;
-                                titulo = metricName + " baja";
-                                color = lowColor;
-                            } else {
-                                mensaje = normalMessage + ": " + currentValue + " " + unit;
-                                titulo = metricName + " estable";
-                                color = normalColor;
-                            }
-
-                            // Crear alerta
-                            createAlert(deviceId, mensaje, titulo, color, callback);
-
-                            // Actualizar último valor
-                            lastValueRef.setValue(currentValue);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Log.e(TAG, "Error al leer el último valor de " + metricName + ": " + error.getMessage());
-                    }
-                });
+                // Crear alerta
+                createAlert(deviceId, mensaje, titulo, color, callback);
             }
 
             @Override
