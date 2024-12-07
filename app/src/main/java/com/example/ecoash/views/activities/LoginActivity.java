@@ -70,7 +70,6 @@ public class LoginActivity extends AppCompatActivity {
 
         // Acción del botón "Iniciar sesión"
         loginButton.setOnClickListener(view -> {
-            // Cambiar el texto del botón a "Autenticando..."
             loginButton.setText("Autenticando...");
 
             // Aplicar animación al texto del botón
@@ -86,9 +85,9 @@ public class LoginActivity extends AppCompatActivity {
 
                 if (email.isEmpty() || password.isEmpty()) {
                     Toast.makeText(LoginActivity.this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
-                    resetLoginButton(); // Restablecer el botón
+                    resetLoginButton();
                 } else {
-                    loginUser(email, password); // Método original para iniciar sesión
+                    loginUser(email, password);
                 }
             }, 2000); // Retraso de 2 segundos
         });
@@ -119,6 +118,7 @@ public class LoginActivity extends AppCompatActivity {
                                         if (documentSnapshot.exists()) {
                                             String role = documentSnapshot.getString("role");
                                             saveEmailToSharedPreferences(email);
+                                            guardarSesionUsuario(role);
                                             if ("admin".equals(role)) {
                                                 Intent intent = new Intent(LoginActivity.this, AdminHomeActivity.class);
                                                 startActivity(intent);
@@ -131,20 +131,27 @@ public class LoginActivity extends AppCompatActivity {
                                             finish();
                                         } else {
                                             Toast.makeText(LoginActivity.this, "Error: Usuario no encontrado", Toast.LENGTH_SHORT).show();
-                                            resetLoginButton(); // Restablecer botón
+                                            resetLoginButton();
                                         }
                                     })
                                     .addOnFailureListener(e -> {
                                         Toast.makeText(LoginActivity.this, "Error al verificar el rol", Toast.LENGTH_SHORT).show();
-                                        resetLoginButton(); // Restablecer botón
+                                        resetLoginButton();
                                     });
                         }
                     } else {
-                        // Mostrar un toast indicando que el usuario no existe
                         Toast.makeText(LoginActivity.this, "Usuario no existe o credenciales incorrectas", Toast.LENGTH_SHORT).show();
-                        resetLoginButton(); // Restablecer botón
+                        resetLoginButton();
                     }
                 });
+    }
+
+    private void guardarSesionUsuario(String role) {
+        SharedPreferences sharedPreferences = getSharedPreferences("SesionUsuario", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("sesionIniciada", true);
+        editor.putString("role", role);
+        editor.apply();
     }
 
     private void resetLoginButton() {
@@ -168,7 +175,7 @@ public class LoginActivity extends AppCompatActivity {
         TranslateAnimation animation = new TranslateAnimation(-50, 0, 0, 0);
         animation.setInterpolator(new AccelerateDecelerateInterpolator());
         animation.setDuration(2000);
-        loginButton.getText(); // Aplica la animación únicamente al texto
+        loginButton.getText();
     }
 
     private void saveEmailToSharedPreferences(String email) {

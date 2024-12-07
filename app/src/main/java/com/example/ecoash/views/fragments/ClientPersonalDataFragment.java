@@ -1,6 +1,8 @@
 package com.example.ecoash.views.fragments;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,7 +35,7 @@ public class ClientPersonalDataFragment extends Fragment {
         TextView txtName = view.findViewById(R.id.txtName);
         TextView txtEmail = view.findViewById(R.id.txtEmail);
         TextView txtAddress = view.findViewById(R.id.txtAddress);
-        TextView txtPhone = view.findViewById(R.id.txtPhone); // Nueva referencia para el teléfono
+        TextView txtPhone = view.findViewById(R.id.txtPhone);
         Button btnLogout = view.findViewById(R.id.btnLogout);
 
         // Cargar datos del usuario
@@ -46,7 +48,7 @@ public class ClientPersonalDataFragment extends Fragment {
                         txtName.setText("Nombre: " + documentSnapshot.getString("name"));
                         txtEmail.setText("Correo: " + documentSnapshot.getString("email"));
                         txtAddress.setText("Dirección: " + documentSnapshot.getString("address"));
-                        txtPhone.setText("Teléfono: +56 " + documentSnapshot.getString("phone")); // Mostrar teléfono con prefijo
+                        txtPhone.setText("Teléfono: +56 " + documentSnapshot.getString("phone"));
                     }
                 })
                 .addOnFailureListener(e -> Toast.makeText(getContext(), "Error al cargar los datos", Toast.LENGTH_SHORT).show());
@@ -54,6 +56,7 @@ public class ClientPersonalDataFragment extends Fragment {
         // Funcionalidad del botón de cerrar sesión
         btnLogout.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
+            borrarSesionUsuario();
             Toast.makeText(getContext(), "Sesión cerrada", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(getContext(), LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -62,5 +65,12 @@ public class ClientPersonalDataFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private void borrarSesionUsuario() {
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("SesionUsuario", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.apply();
     }
 }

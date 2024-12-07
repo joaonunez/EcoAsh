@@ -1,6 +1,8 @@
 package com.example.ecoash.views.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -14,6 +16,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Comprobar si hay una sesión activa
+        verificarSesionActiva();
+
         FirebaseApp.initializeApp(this);
         setContentView(R.layout.activity_main);
 
@@ -38,5 +44,24 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    private void verificarSesionActiva() {
+        SharedPreferences sharedPreferences = getSharedPreferences("SesionUsuario", Context.MODE_PRIVATE);
+        boolean sesionIniciada = sharedPreferences.getBoolean("sesionIniciada", false);
+        String role = sharedPreferences.getString("role", "");
+
+        if (sesionIniciada) {
+            Intent intent;
+            if ("admin".equals(role)) {
+                intent = new Intent(this, AdminHomeActivity.class);
+            } else if ("cliente".equals(role)) {
+                intent = new Intent(this, ClientHomeActivity.class);
+            } else {
+                return; // Si no hay rol, no hacemos nada
+            }
+            startActivity(intent);
+            finish(); // Finalizamos MainActivity
+        }
     }
 }

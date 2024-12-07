@@ -1,17 +1,17 @@
 package com.example.ecoash.views.activities;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
-import android.content.Intent; // Para manejar las Intents
-import android.widget.Toast; // Para mostrar mensajes Toast
 
 import com.example.ecoash.R;
 import com.example.ecoash.adapters.AdminViewPagerAdapter;
-import com.google.firebase.auth.FirebaseAuth; // Para la autenticación con Firebase
-
-
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class AdminHomeActivity extends AppCompatActivity {
@@ -32,23 +32,21 @@ public class AdminHomeActivity extends AppCompatActivity {
         AdminViewPagerAdapter adapter = new AdminViewPagerAdapter(this);
         viewPager.setAdapter(adapter);
 
-
         // Configurar listener para sincronizar BottomNavigationView con ViewPager2
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_add) {
-                viewPager.setCurrentItem(0, true); // Primer fragmento: Agregar dispositivos
+                viewPager.setCurrentItem(0, true);
                 return true;
             } else if (itemId == R.id.nav_manage) {
-                viewPager.setCurrentItem(1, true); // Segundo fragmento: Gestión de dispositivos
+                viewPager.setCurrentItem(1, true);
                 return true;
             } else if (itemId == R.id.nav_logout) {
-                handleLogout(); // Llamada al método de logout
+                handleLogout();
                 return true;
             }
             return false;
         });
-
 
         // Sincronizar ViewPager2 con BottomNavigationView
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
@@ -70,15 +68,22 @@ public class AdminHomeActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             viewPager.setCurrentItem(0);
         }
-
-
     }
+
     private void handleLogout() {
         FirebaseAuth.getInstance().signOut();
+        borrarSesionUsuario();
         Toast.makeText(this, "Sesión cerrada", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
-        finish(); // Finaliza la actividad actual
+        finish();
+    }
+
+    private void borrarSesionUsuario() {
+        SharedPreferences sharedPreferences = getSharedPreferences("SesionUsuario", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.apply();
     }
 }

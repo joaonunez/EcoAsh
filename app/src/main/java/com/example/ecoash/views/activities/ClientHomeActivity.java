@@ -15,6 +15,8 @@ public class ClientHomeActivity extends AppCompatActivity {
 
     private BadgeDrawable badgeDrawable;
     private int unreadNotifications = 0;
+    private BottomNavigationView bottomNavigationView;
+    private ViewPager2 viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,8 +24,8 @@ public class ClientHomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_client_home);
 
         // Vincular las vistas del layout
-        ViewPager2 viewPager = findViewById(R.id.viewPager);
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        viewPager = findViewById(R.id.viewPager);
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
         // Configurar el adaptador para el ViewPager
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
@@ -37,14 +39,14 @@ public class ClientHomeActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_devices) {
-                viewPager.setCurrentItem(0); // Primer fragmento: Gestión de dispositivos
+                viewPager.setCurrentItem(0);
                 return true;
             } else if (itemId == R.id.nav_personal_data) {
-                viewPager.setCurrentItem(1); // Segundo fragmento: Datos personales
+                viewPager.setCurrentItem(1);
                 return true;
             } else if (itemId == R.id.nav_alerts) {
-                viewPager.setCurrentItem(2); // Tercer fragmento: Alertas
-                resetBadge(); // Reiniciar el contador de notificaciones al entrar a la vista de alertas
+                viewPager.setCurrentItem(2);
+                resetBadge();
                 return true;
             }
             return false;
@@ -64,7 +66,7 @@ public class ClientHomeActivity extends AppCompatActivity {
                         break;
                     case 2:
                         bottomNavigationView.setSelectedItemId(R.id.nav_alerts);
-                        resetBadge(); // Reiniciar el contador de notificaciones
+                        resetBadge();
                         break;
                 }
             }
@@ -78,13 +80,13 @@ public class ClientHomeActivity extends AppCompatActivity {
     private void onNewAlert() {
         unreadNotifications++;
         badgeDrawable.setNumber(unreadNotifications);
-        badgeDrawable.setVisible(true); // Mostrar el badge
+        badgeDrawable.setVisible(true);
     }
 
     // Método para reiniciar el badge al entrar en la vista de alertas
     private void resetBadge() {
         unreadNotifications = 0;
         badgeDrawable.clearNumber();
-        badgeDrawable.setVisible(false); // Ocultar el badge
+        badgeDrawable.setVisible(false);
     }
 }
