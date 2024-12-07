@@ -5,4 +5,5 @@
         <item>Femenino</item>
     </string-array>
     <string name="notification_desc">Notificación de nueva alerta</string>
+    <string name="not_authorized_icon">Not Authorized Icon</string>
 </resources>

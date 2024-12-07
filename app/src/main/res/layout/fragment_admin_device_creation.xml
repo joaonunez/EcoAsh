@@ -3,27 +3,60 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="24dp"
+    android:background="#F5F5F5">
 
+    <!-- Título del formulario -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Registro de Dispositivo"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:layout_gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Campo de entrada para el nombre del dispositivo -->
     <EditText
         android:id="@+id/deviceNameInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Nombre del dispositivo"
-        android:padding="12dp"
-        android:layout_marginBottom="16dp"/>
+        android:padding="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/rounded_input"
+        android:textColor="#333333"
+        android:textSize="16sp"
+        android:inputType="textCapWords"
+        android:gravity="center_vertical" />
 
+    <!-- Campo de entrada de autocompletado para el correo del usuario -->
     <AutoCompleteTextView
         android:id="@+id/userEmailInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Correo del usuario (opcional)"
-        android:padding="12dp"
-        android:layout_marginBottom="16dp"/>
+        android:padding="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/rounded_input"
+        android:textColor="#333333"
+        android:textSize="16sp"
+        android:inputType="textEmailAddress"
+        android:gravity="center_vertical" />
 
+    <!-- Botón de registrar dispositivo -->
     <Button
         android:id="@+id/registerDeviceButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Registrar Dispositivo"/>
+        android:text="Registrar Dispositivo"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/rounded_button"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:padding="16dp"
+        android:fontFamily="sans-serif-medium" />
+
 </LinearLayout>

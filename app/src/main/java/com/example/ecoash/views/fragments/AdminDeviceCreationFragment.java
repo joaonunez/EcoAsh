@@ -1,9 +1,11 @@
 package com.example.ecoash.views.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -15,8 +17,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.ecoash.R;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -26,7 +31,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 public class AdminDeviceCreationFragment extends Fragment {
 
@@ -52,7 +56,10 @@ public class AdminDeviceCreationFragment extends Fragment {
         registerDeviceButton = view.findViewById(R.id.registerDeviceButton);
 
         setupUserEmailAutocomplete();
-        registerDeviceButton.setOnClickListener(v -> registerDevice());
+        registerDeviceButton.setOnClickListener(v -> {
+            hideKeyboard();
+            checkUserDevice();
+        });
 
         return view;
     }
@@ -72,6 +79,36 @@ public class AdminDeviceCreationFragment extends Fragment {
                     userEmailInput.setAdapter(adapter);
                 })
                 .addOnFailureListener(e -> Toast.makeText(requireContext(), "Error al cargar correos: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    private void checkUserDevice() {
+        String userEmail = userEmailInput.getText().toString().trim();
+
+        // Si el email está vacío, se asume "Sin asignar" y se continúa directamente
+        if (userEmail.isEmpty()) {
+            registerDevice();
+            return;
+        }
+
+        // Verificar si el usuario ya tiene un dispositivo asignado
+        realtimeDatabase.orderByChild("userEmail").equalTo(userEmail)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            // El usuario ya tiene un dispositivo
+                            showCustomToast("Ese usuario ya tiene un dispositivo asignado");
+                        } else {
+                            // El usuario no tiene un dispositivo, podemos registrarlo
+                            registerDevice();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        Toast.makeText(requireContext(), "Error al verificar dispositivo: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void registerDevice() {
@@ -113,7 +150,34 @@ public class AdminDeviceCreationFragment extends Fragment {
                 .addOnSuccessListener(aVoid -> {
                     deviceNameInput.setText("");
                     userEmailInput.setText("");
+                    Toast.makeText(requireContext(), "Dispositivo registrado con éxito", Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> Toast.makeText(requireContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    private void hideKeyboard() {
+        View view = getActivity().getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+        }
+    }
+
+    private void showCustomToast(String message) {
+        LayoutInflater inflater = getLayoutInflater();
+        View layout = inflater.inflate(R.layout.custom_toast, null);
+
+        // Asumiendo que en custom_toast.xml hay un TextView con id toastMessage
+        // y un ImageView con id toastImage (no es necesario modificar el imageView ya que ya tiene el src en el layout)
+        // Solo agregamos el texto
+        androidx.appcompat.widget.AppCompatTextView textView = layout.findViewById(R.id.toastMessage);
+        textView.setText(message);
+
+        Toast toast = new Toast(requireContext());
+        toast.setDuration(Toast.LENGTH_LONG);
+        toast.setView(layout);
+        toast.show();
     }
 }
