@@ -119,9 +119,6 @@ public class ClientAlertsFragment extends Fragment {
         // Agregamos un ChildEventListener para manejar alertas una a una
         alertsRef.addChildEventListener(childEventListener);
 
-        // Como acabamos de agregar el listener, asumimos que no sabemos si hay alertas.
-        // Podríamos hacer una consulta inicial para saber si mostrar o no la vista vacía,
-        // pero en cuanto aparezca la primera alerta, se actualizará.
         progressBar.setVisibility(View.GONE);
         emptyView.setVisibility(alerts.isEmpty() ? View.VISIBLE : View.GONE);
     }
@@ -145,6 +142,12 @@ public class ClientAlertsFragment extends Fragment {
                     alertsAdapter.notifyItemInserted(insertPosition);
 
                     emptyView.setVisibility(alerts.isEmpty() ? View.VISIBLE : View.GONE);
+
+                    // Si el fragmento está visible y la alerta se insertó al inicio,
+                    // desplazamos el RecyclerView hacia arriba.
+                    if (isVisible() && insertPosition == 0) {
+                        recyclerView.smoothScrollToPosition(0);
+                    }
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Error al procesar la alerta: " + e.getMessage(), e);
@@ -153,18 +156,17 @@ public class ClientAlertsFragment extends Fragment {
 
         @Override
         public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            // Si las alertas se modifican, podríamos manejarlo aquí
-            // En este caso, asumimos que las alertas no se modifican, solo se agregan.
+            // Lógica para cambios de una alerta existente (opcional)
         }
 
         @Override
         public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-            // Manejo si se elimina una alerta (no es obligatorio si no se necesita)
+            // Lógica para eliminación de una alerta (opcional)
         }
 
         @Override
         public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            // No se requiere por ahora.
+            // Lógica para reordenamiento de alertas (no requerido actualmente)
         }
 
         @Override
