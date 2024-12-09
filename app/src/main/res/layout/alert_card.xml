@@ -5,17 +5,17 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="@android:color/white"
+    android:background="@color/admin_card_background"
     android:layout_marginBottom="8dp"
+    android:layout_margin="8dp"
     android:elevation="4dp"
-    android:layout_margin="8dp">
+    android:layout_marginHorizontal="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <!-- Título de la alerta -->
         <TextView
             android:id="@+id/alertTitle"
             android:layout_width="0dp"
@@ -24,10 +24,9 @@
             android:text="Título de la Alerta"
             android:textStyle="bold"
             android:textSize="18sp"
-            android:textColor="@android:color/black"
+            android:textColor="@color/admin_title_color"
             android:paddingBottom="8dp" />
 
-        <!-- Botón X para eliminar la alerta individual -->
         <ImageButton
             android:id="@+id/deleteAlertButton"
             android:layout_width="wrap_content"
@@ -35,20 +34,18 @@
             android:src="@android:drawable/ic_delete"
             android:contentDescription="Eliminar alerta"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:tint="@android:color/black"/>
+            android:tint="@color/icon_color"/>
     </LinearLayout>
 
-    <!-- Mensaje de la alerta -->
     <TextView
         android:id="@+id/alertMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Mensaje de la Alerta"
         android:textSize="16sp"
-        android:textColor="@android:color/black"
+        android:textColor="@color/text_color"
         android:paddingBottom="8dp" />
 
-    <!-- Contenedor para fondo dinámico según el color -->
     <LinearLayout
         android:id="@+id/alertBackground"
         android:layout_width="match_parent"
@@ -56,7 +53,7 @@
         android:orientation="vertical"
         android:padding="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@android:color/darker_gray"
+        android:background="@color/background_color"
         android:elevation="2dp">
 
         <TextView
@@ -65,16 +62,15 @@
             android:layout_height="wrap_content"
             android:text="Tipo: Crítico"
             android:textSize="14sp"
-            android:textColor="@android:color/black"
+            android:textColor="@color/text_color"
             android:paddingBottom="4dp" />
     </LinearLayout>
 
-    <!-- Fecha y hora de la alerta -->
     <TextView
         android:id="@+id/alertTimestamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Fecha de la Alerta"
         android:textSize="12sp"
-        android:textColor="#888888" />
+        android:textColor="@color/hint_color" />
 </LinearLayout>
