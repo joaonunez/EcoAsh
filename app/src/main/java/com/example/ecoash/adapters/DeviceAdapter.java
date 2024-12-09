@@ -100,13 +100,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.DeviceView
                 });
             }
 
-            // Actualizar lastValues con el valor actual (esto sigue igual, se mantiene la funcionalidad)
-            updateLastValue(device.getId(), "CO", device.getCO());
-            updateLastValue(device.getId(), "CO2", device.getCO2());
-            updateLastValue(device.getId(), "PM10", device.getPM10());
-            updateLastValue(device.getId(), "PM2_5", device.getPM2_5());
-            updateLastValue(device.getId(), "humedad", device.getHumedad());
-            updateLastValue(device.getId(), "temperatura", device.getTemperatura());
+            // Eliminamos la llamada a updateLastValue para evitar sobrescribir lastValues en onBindViewHolder
 
         } else {
             // Modo Cliente
@@ -122,13 +116,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.DeviceView
                 holder.editNameButton.setOnClickListener(v -> showEditNameDialog(device, position));
             }
 
-            // Aquí también mantenemos el updateLastValue por consistencia
-            updateLastValue(device.getId(), "CO", device.getCO());
-            updateLastValue(device.getId(), "CO2", device.getCO2());
-            updateLastValue(device.getId(), "PM10", device.getPM10());
-            updateLastValue(device.getId(), "PM2_5", device.getPM2_5());
-            updateLastValue(device.getId(), "humedad", device.getHumedad());
-            updateLastValue(device.getId(), "temperatura", device.getTemperatura());
+            // Eliminamos la llamada a updateLastValue para evitar sobrescribir lastValues en onBindViewHolder
         }
 
         // Escuchar cambios en métricas
@@ -217,10 +205,13 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.DeviceView
         notifyDataSetChanged();
     }
 
-    private void updateLastValue(String deviceId, String metric, double value) {
-        databaseReference.child(deviceId).child("lastValues").child(metric).setValue(value);
-    }
-
+    /**
+     * Escucha cambios en una métrica específica del dispositivo.
+     * Actualiza lastValues en Firebase solo si hay un cambio real en la métrica.
+     *
+     * @param deviceId ID del dispositivo
+     * @param metric   Nombre de la métrica a escuchar
+     */
     private void listenForMetricChanges(String deviceId, String metric) {
         DatabaseReference metricRef = databaseReference.child(deviceId).child(metric);
         DatabaseReference lastValueRef = databaseReference.child(deviceId).child("lastValues").child(metric);
@@ -228,26 +219,32 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.DeviceView
         metricRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Double currentValue = snapshot.getValue(Double.class);
-                if (currentValue != null) {
-                    // Encontrar el dispositivo por su id
+                Double newValueDouble = snapshot.getValue(Double.class);
+                if (newValueDouble != null) {
+                    int newValue = newValueDouble.intValue();
+
                     int position = findDevicePositionById(deviceId);
                     if (position != -1) {
                         Device device = devices.get(position);
 
-                        // Actualizar el valor del dispositivo usando sus setters
-                        // Esto hará que lastValues se actualice internamente con el valor anterior.
-                        setMetricValue(device, metric, currentValue.intValue());
+                        Object oldValueObj = device.getMetricValue(metric);
+                        if (oldValueObj != null && oldValueObj instanceof Integer) {
+                            int oldValue = (Integer) oldValueObj;
 
-                        // Ahora en device.getLastValues().get(metric) está el valor anterior,
-                        // el que queremos guardar en la base de datos como lastValues.
-                        Object oldValue = device.getLastValues().get(metric);
-                        if (oldValue != null) {
-                            lastValueRef.setValue(oldValue);
+                            if (newValue != oldValue) {
+                                // Actualizar lastValues en Firebase con el valor anterior
+                                lastValueRef.setValue(oldValue)
+                                        .addOnSuccessListener(aVoid -> {
+                                            // Actualizar el valor oficial en el objeto local
+                                            device.setMetricValue(metric, newValue);
+                                            notifyItemChanged(position);
+                                            Log.d(TAG, "lastValues actualizados correctamente para " + metric + " en dispositivo " + deviceId);
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Log.e(TAG, "Error al actualizar lastValues para " + metric + " en dispositivo " + deviceId + ": " + e.getMessage());
+                                        });
+                            }
                         }
-
-                        // Notificar cambios en la vista
-                        notifyItemChanged(position);
                     }
                 }
             }
@@ -261,6 +258,9 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.DeviceView
 
     /**
      * Encuentra la posición del dispositivo en la lista por su ID.
+     *
+     * @param deviceId ID del dispositivo
+     * @return Posición en la lista o -1 si no se encuentra
      */
     private int findDevicePositionById(String deviceId) {
         for (int i = 0; i < devices.size(); i++) {
@@ -269,32 +269,6 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.DeviceView
             }
         }
         return -1;
-    }
-
-    /**
-     * Asigna el valor apropiado al dispositivo según la métrica.
-     */
-    private void setMetricValue(Device device, String metric, int newValue) {
-        switch (metric) {
-            case "CO":
-                device.setCO(newValue);
-                break;
-            case "CO2":
-                device.setCO2(newValue);
-                break;
-            case "PM10":
-                device.setPM10(newValue);
-                break;
-            case "PM2_5":
-                device.setPM2_5(newValue);
-                break;
-            case "humedad":
-                device.setHumedad(newValue);
-                break;
-            case "temperatura":
-                device.setTemperatura(newValue);
-                break;
-        }
     }
 
     static class DeviceViewHolder extends RecyclerView.ViewHolder {
