@@ -1,26 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_500">#6200EE</color>
+    <color name="primary">#6200EE</color> <!-- Color principal -->
+
+    <!-- Colores base -->
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="gray">#808080</color>
-    <color name="primary">#6200EE</color>
-    <color name="teal_700">#00897B</color>
-    <color name="purple_200">#BB86FC</color>
-    <color name="admin_card_background">#F5F5F5</color>
+    <color name="background">#F3F3F3</color>
+
+    <!-- Colores de texto -->
+    <color name="primaryText">#212121</color>
+    <color name="text_color">#212121</color>
+    <color name="hint_color">#9E9E9E</color>
+    <color name="icon_color">#757575</color>
+
+    <!-- Colores de botones y títulos -->
+    <color name="ecoash_button_background">#7C4DFF</color>
+    <color name="ecoash_button_text">#FFFFFF</color>
+    <color name="ecoash_button_border">#5E35B1</color>
     <color name="admin_title_color">#3F51B5</color>
     <color name="admin_text_color">#333333</color>
     <color name="admin_value_color">#009688</color>
     <color name="admin_button_background">#D32F2F</color>
-    <color name="background">#F3F3F3</color>
-    <color name="primaryText">#212121</color>
-    <color name="ecoash_button_background">#7C4DFF</color>
-    <color name="ecoash_button_text">#FFFFFF</color>
-    <color name="ecoash_button_border">#5E35B1</color>
+
+    <!-- Colores de fondo -->
+    <color name="purple_500">#6200EE</color>
+    <color name="purple_200">#BB86FC</color>
+    <color name="teal_700">#00897B</color>
+    <color name="admin_card_background">#F5F5F5</color>
     <color name="background_color">#F5F5F5</color>
-    <color name="text_color">#212121</color>
-    <color name="icon_color">#757575</color>
-    <color name="hint_color">#9E9E9E</color>
 
-
+    <!-- Colores para alertas -->
+    <color name="critical_alert">#FFCDD2</color> <!-- Rojo claro -->
+    <color name="low_alert">#BBDEFB</color> <!-- Azul claro -->
+    <color name="normal_alert">#C8E6C9</color> <!-- Verde claro -->
+    <color name="default_alert">#E0E0E0</color> <!-- Gris claro -->
 </resources>
