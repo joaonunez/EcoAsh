@@ -1,15 +1,13 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/alertCard"
+    android:id="@+id/alertBackground"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="@color/admin_card_background"
-    android:layout_marginBottom="8dp"
+    android:background="@color/default_alert"
     android:layout_margin="8dp"
-    android:elevation="4dp"
-    android:layout_marginHorizontal="8dp">
+    android:elevation="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -34,7 +32,7 @@
             android:src="@android:drawable/ic_delete"
             android:contentDescription="Eliminar alerta"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:tint="@color/icon_color"/>
+            android:tint="@color/icon_color" />
     </LinearLayout>
 
     <TextView
@@ -46,25 +44,14 @@
         android:textColor="@color/text_color"
         android:paddingBottom="8dp" />
 
-    <LinearLayout
-        android:id="@+id/alertBackground"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/alertType"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="@color/background_color"
-        android:elevation="2dp">
-
-        <TextView
-            android:id="@+id/alertType"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tipo: Crítico"
-            android:textSize="14sp"
-            android:textColor="@color/text_color"
-            android:paddingBottom="4dp" />
-    </LinearLayout>
+        android:text="Nivel: Crítico"
+        android:textSize="14sp"
+        android:textColor="@color/text_color"
+        android:paddingBottom="4dp" />
 
     <TextView
         android:id="@+id/alertTimestamp"

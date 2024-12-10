@@ -1,7 +1,6 @@
 package com.example.ecoash.adapters;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,33 +44,39 @@ public class AlertsAdapter extends RecyclerView.Adapter<AlertsAdapter.AlertViewH
     @Override
     public void onBindViewHolder(@NonNull AlertViewHolder holder, int position) {
         Alert alert = alerts.get(position);
+
+        // Establecer título, mensaje y fecha
         holder.alertTitle.setText(alert.getTitulo());
         holder.alertMessage.setText(alert.getMensaje());
-        holder.alertType.setText("Tipo: " + alert.getColor());
         holder.alertTimestamp.setText(alert.getFecha());
 
-        // Ajustar color de fondo según el color de la alerta
+        // Determinar nivel y color de la alerta
         String color = alert.getColor();
         if (color != null) {
             switch (color.toLowerCase()) {
                 case "rojo":
-                    holder.alertBackground.setBackgroundColor(Color.RED);
+                    holder.alertType.setText("Nivel: Crítico");
+                    holder.alertBackground.setBackgroundColor(holder.itemView.getContext().getResources().getColor(R.color.critical_alert));
                     break;
                 case "azul":
-                    holder.alertBackground.setBackgroundColor(Color.BLUE);
+                    holder.alertType.setText("Nivel: Bajo");
+                    holder.alertBackground.setBackgroundColor(holder.itemView.getContext().getResources().getColor(R.color.low_alert));
                     break;
                 case "verde":
-                    holder.alertBackground.setBackgroundColor(Color.GREEN);
+                    holder.alertType.setText("Nivel: Estable");
+                    holder.alertBackground.setBackgroundColor(holder.itemView.getContext().getResources().getColor(R.color.normal_alert));
                     break;
                 default:
-                    holder.alertBackground.setBackgroundColor(Color.DKGRAY);
+                    holder.alertType.setText("Nivel: Desconocido");
+                    holder.alertBackground.setBackgroundColor(holder.itemView.getContext().getResources().getColor(R.color.default_alert));
                     break;
             }
         } else {
-            holder.alertBackground.setBackgroundColor(Color.DKGRAY);
+            holder.alertType.setText("Nivel: Desconocido");
+            holder.alertBackground.setBackgroundColor(holder.itemView.getContext().getResources().getColor(R.color.default_alert));
         }
 
-        // Listener del botón X
+        // Configurar el botón de eliminar
         holder.deleteAlertButton.setOnClickListener(v -> {
             if (onAlertDeleteListener != null) {
                 onAlertDeleteListener.onDeleteAlert(alert, position);
